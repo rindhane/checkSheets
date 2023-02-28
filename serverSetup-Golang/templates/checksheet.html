@@ -1,0 +1,434 @@
+<!DOCTYPE html> 
+<head>
+    <link rel="stylesheet" type="text/css" href="/assets/CSS/main.css">
+</head>
+<body>
+    <header>
+        <img src="/assets/img/logo.png" style="max-height:50px;max-width:50px;">
+    </header>
+    <div class="authoringCheckContainer">
+        <fieldset>
+            <legend>Authoring Mode</legend>
+            <div class="toggleSwitchContainer">
+                <label class="switch">
+                    <input type="checkbox" id="authoringModeSwitch">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </fieldset>
+    </div>
+    <main id="main">
+        <div class="formFieldContainer" id="contentSection">
+            <div class="sectionContainer">
+                <div class="headerItem sectionItem itemSmall">Sn.</div>
+                <div class="headerItem sectionItem itemLarge">Param Description</div>
+                <div class=" headerItem sectionItem inspectionSubSection">
+                    <div class="subSectionItem">
+                        <div class="inspectionParam"> Insp. Method </div>
+                        <div class="inspectionParam"> Operator Input </div>
+                    </div>
+                </div>
+                <div class="headerItem sectionItem itemMedium">Status</div>
+                <div class="headerItem sectionItem itemSmall">Authoring</div>
+            </div>
+            <div class="sectionContainer ">
+                <div class="sectionItem itemSmall">1.</div>
+                <div class="sectionItem itemLarge">Param Description</div>
+                <div class="sectionItem inspectionSubSection">
+                    <div class="subSectionItem">
+                        <div class="inspectionParam"> Check Method</div>
+                        <div class="inspectionParam"> Reference Image </div>
+                    </div>
+                </div>
+                <div class="sectionItem itemMedium">Status</div>
+                <div class="sectionItem itemSmall">
+                    <img class="sectionImg" src="/assets/img/icons/remove.svg">
+                    <img class="sectionImg" src="/assets/img/icons/edit.png">
+                </div>
+            </div>
+            <div class="sectionDivider">
+
+            </div>
+            <div class="sectionContainer">
+                <div class="sectionItem itemSmall">2</div>
+                <div class="sectionItem itemLarge"> Block-1 Fitment</div>
+                <div class=" sectionItem inspectionSubSection">
+                    <div class="subSectionItem">
+                        <div class="inspectionParam"> First Torque-1</div>
+                        <div class="inspectionParam"> 10.693 N-m</div>
+                    </div>
+                    <div class="subSectionItem ">
+                        <div class="inspectionParam"> First Torque-2</div>
+                        <div class="inspectionParam"> 11.678 N-m</div>
+                    </div>
+                </div>
+                <div class="sectionItem itemMedium">
+                    Not Validated
+                </div>
+                <div class="sectionItem itemSmall">
+                    <img class="sectionImg" src="/assets/img/icons/add.png">
+                    <img class="sectionImg" src="/assets/img/icons/edit.png">
+                </div>
+            </div> 
+        </div>
+        <div class="modalBackground" id="modalBackground"></div>    
+    </main>
+    <div class="tempContainer hideContainer" id="Text field">
+        <div class="modalSection" data-kind="relative field" data-field-type="text">
+            <div class="FieldDescription">
+                <label> 
+                    Check Parameter Description
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div>
+    </div>
+    <div class="tempContainer hideContainer" id="Numerical Field">
+        <div class="modalSection" data-kind="relative field" data-field-type="numerical">
+            <div class="FieldDescription">
+                <label> 
+                    Field Name / Description
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="ChMean">
+                <label> 
+                    Mean Value
+                </label>
+                <input type="Number" data-field-input="answer">
+            </div>
+            <div class="choiceLimit">
+                <label>Has USL ?</label>
+                <input name="$specLimitUpper$" type="radio" data-field-input="check" value="yes"> <label>Yes</label> 
+                <input name="$specLimitUpper$" type="radio" checked value="no"> <label>No</label> <input type="number" data-field-input="answer">
+            </div>
+            <div class="choiceLimit">
+                <label>Has LSL ?</label>
+                <input name="$specLimitLower$" type="radio" data-field-input="check"> <label>Yes</label> 
+                <input name="$specLimitLower$" type="radio" checked> <label>No</label> <input type="number" data-field-input="answer">
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div>
+    </div>
+    <div class="tempContainer hideContainer" id="Go-NoGo Field">
+        <div class="modalSection" data-kind="relative field" data-field-type="yesNoSelector">
+            <div class="FieldDescription">
+                <label> 
+                    Field Name / Description
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div>
+    </div>
+    <div class="tempContainer hideContainer" id="Multiple Selector">
+        <div class="modalSection" data-kind="relative field" data-field-type="multipleSelector">
+            <div class="FieldDescription">
+                <label> 
+                    Field Name / Description
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="multipleInputContainer">
+                <label>Define the selection options</label>
+                <div class="InputBox">
+                    <label>1</label>
+                    <input type="text" class="inputFixWidth" data-field-input="answer">
+                    <img src="/assets/img/icons/cross.svg" onclick="deleteSelfOption(event, this)">
+                    <img src="/assets/img/icons/add_round.svg" onclick="addOneMoreOption(event, this)">
+                </div>
+                <div class="hideContainer">
+                    <label>{$$%%optionNumber%%$$}</label>
+                    <input type="text" class="inputFixWidth" data-field-input="answer">
+                    <img src="/assets/img/icons/cross.svg" onclick="deleteSelfOption(event, this)">
+                    <img src="/assets/img/icons/add_round.svg" onclick="addOneMoreOption(event, this)">
+                </div>
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div>
+    </div>
+    <div class="tempContainer hideContainer" id="Increment Selector">
+        <div class="modalSection" data-kind="relative field" data-field-type="incrementSelector">
+            <div class="FieldDescription">
+                <label> 
+                    Field Name / Description
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="incrementSetup">
+                <label>Initial/Mean value of increment input :</label>
+                <input type="number" data-field-input="answer">
+                &nbsp;&nbsp;&nbsp; 
+                <label>increment by:</label>
+                <input type="number" data-field-input="answer">
+                &nbsp;&nbsp;&nbsp;
+                <label>decrement by:</label>
+                <input type="number" data-field-input="answer">
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div>
+    </div>
+    <div class="tempContainer hideContainer" id="Picture Field">
+        <div class="modalSection" data-kind="relative field" data-field-type="pictureField">
+            <div class="FieldDescription">
+                <label> 
+                    Field Name / Description
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="pictureInputContainer" data-field-image-data="">
+                <label>Add Image for Field</label>
+                <input type="file" name="img" accept="image/*" onchange="storeUploadFile(event,this)">
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div> 
+    </div>
+    <div class="tempContainer hideContainer" id="External Source Field">
+        <div class="modalSection" data-kind="relative field" data-field-type="externalSourceField">
+            <div class="FieldDescription">
+                <label> 
+                    Field Name / Description
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="externalSourceContainer">
+                <label>Select a source for fetching data :&nbsp;</label>
+                <select name="sourceList" onchange="fieldRenderFunction(event, this);">
+                    <option value="0" selected>Choose DataSource</option>
+                    <option value="PARI Source">PARI Source</option>
+                    <option value="GUDEL Source">Gudel Source</option>
+                </select>
+                <select name="sourceFieldList" class="hideContainer" >
+                    <option value="0" selected>Choose Field</option>
+                </select>
+            </div>
+            <div class="specLimit">
+                <label> 
+                    Provide Specifications 
+                </label>
+                <input type="text" data-field-input="answer" >
+            </div>
+            <div class="characteristicClassification">
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="critical" checked> <label> Critical</label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="major"> <label> Major </label>
+                <input type="radio" name="$$classificationCategory$$" data-field-tag="minor"> <label> Minor </label>
+            </div>
+            <div class="deleteButton">
+                <button onclick="deleteSelf(event,this)"> delete it </button>
+            </div>
+        </div>
+    </div>
+    <div class="tempContainer hideContainer" id="Go-NoGo InspectionView" >
+        <select class="tabSelector" name="yesNoSelector"  multiple="" >
+            <!-- Refernce : 
+                    https://stackoverflow.com/questions/52707749/how-can-i-display-select-options-as-buttons
+                    https://stackoverflow.com/questions/44652219/display-select-option-as-tab 
+                 -->
+            <option value="0" selected>No</option>
+            <option value="1">Yes</option>
+        </select>
+    </div>
+    <div class="tempContainer hideContainer" id="multipleSelector View subElement" onclick="modifyColor(event,this)">
+        <label class="multipleSelectorLabel">
+            {$$%%LabelText%%$$}
+            <input type="radio" name="{$$%%name%%$$}" class="multipleSelectorRadio" >
+        </label>
+    </div>
+    <div class="tempContainer hideContainer" id="incrementSelectorView">
+        <div class="incrementField">
+            <!--
+                https://stackoverflow.com/questions/45396280/customizing-increment-arrows-on-input-of-type-number-using-css
+            -->
+            <button onclick="incrementDecrement(event, this, moverVal=-1)" >
+                <img src="/assets/img/icons/minus.svg">
+            </button>
+            <input  name="quantity" type="number">
+            <button onclick="incrementDecrement(event, this, moverVal=1)">
+                <img src="/assets/img/icons/add.png">
+            </button>
+        </div>
+    </div>
+    <div class="modalTempContainer hideContainer" id="modalStartContent">
+        <div class="modal" id="modal">
+            <span class="close" id="close" data-kind="fixed static">Close &times;</span>
+            <div class="modalHeading" data-kind="fixed static">
+                Create Inspection Parameters for a Station 
+            </div>
+            <div class="modalSection" data-kind="fixed static desc" data-field-type="name">
+                <label> 
+                    Description of Field Section
+                </label>
+                <input type="text" data-field-input="answer">
+            </div>
+            <div class="modalSection" data-kind="fixed static">                     
+                <fieldset id="RequestBlock">
+                    <legend>Add More fields</legend>
+                    <label>No</label>
+                    <input name="filedInserter" type="radio" id="fieldNoEventRadio" checked>
+                    <label>Yes</label>
+                    <input name="filedInserter" id="fieldAddEventRadio" type="radio">
+                    <div class="optionsField hideContainer" id="optionFieldSelectorContainer">
+                        <label> Select type of field </label>
+                        <select id="optionFieldSelector">
+                            <option value="0"> Select One Field</option>
+                            <option value="Text field">Text field</option>
+                            <option value="Numerical Field">Numerical Field</option>
+                            <option value="Go-NoGo Field">Go-NoGo Field</option>
+                            <option value="Multiple Selector">Multiple Selector</option>
+                            <option value="Increment Selector">Increment Selector</option>
+                            <option value="Picture Field">Picture Field</option>
+                            <option value="External Source Field">External Source Field</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modalEndSection" data-kind="fixed static">
+                <button onclick="saveModalContent(this)">save</button>
+            </div>
+        </div>
+    </div>
+    <div class="modalTempContainer hideContainer" id="modalPicContainer">
+        <div class="modal" id="modalPic">
+            <span class="close" id="closePic" data-kind="fixed static">Close &times;</span>
+        </div>
+    </div>
+    <div class="sectionTableHeader hideContainer" id="sectionTableHeaderAuth">
+        <div class="sectionContainer">
+            <div class="headerItem sectionItem itemSmall">Sn.</div>
+            <div class="headerItem sectionItem itemMedium">Station </div>
+            <div class=" headerItem sectionItem inspectionSubSection">
+                <div class="subSectionItem">
+                    <div class="inspectionParam inspectionHelperSmall headerItem"> Class </div>
+                    <div class=" inspectionParam inspectionHelper headerItem"> Specification  </div>
+                    <div class="inspectionParam headerItem"> Parameter to be checked </div>
+                    <div class="inspectionParam headerItem"> Reading </div>
+                </div>
+            </div>
+            <div class="headerItem sectionItem itemMedium">Status</div>
+            <div class="headerItem sectionItem headerItem itemMedium">Authoring</div>
+        </div>
+    </div>
+    <div class="sectionTableHeader hideContainer" id="sectionTableHeaderNone">
+        <div class="sectionContainer">
+            <div class="headerItem sectionItem itemSmall">Sn.</div>
+            <div class="headerItem sectionItem itemMedium">Station </div>
+            <div class=" headerItem sectionItem inspectionSubSection">
+                <div class="subSectionItem">
+                    <div class="inspectionParam inspectionHelperSmall headerItem"> Class </div>
+                    <div class=" inspectionParam inspectionHelper headerItem"> Specification  </div>
+                    <div class="inspectionParam headerItem"> Parameter to be checked </div>
+                    <div class="inspectionParam headerItem"> Reading </div>
+                </div>
+            </div>
+            <div class="headerItem sectionItem itemMedium">Status</div>
+            <!--
+            <div class="headerItem sectionItem itemMedium headerItem">Authoring</div>
+            -->
+        </div>
+    </div>
+    <div class="sectionDividerTemplateContainerAuth hideContainer" id="sectionDividerTemplateContainerAuth" >
+        <div class="sectionDividerAuth" onclick="onClickNewAdd(this)">
+            <div class="dividerLine"></div>
+            <img class="sectionDividerImg" src="/assets/img/icons/add.png" >
+        </div>
+    </div>
+    <div class="sectionDividerTemplateContainerNone hideContainer" id="sectionDividerTemplateContainerNone">
+        <div class="sectionDividerNoAuth">
+            <!--
+                <img class="sectionImg" src="/assets/img/icons/add.png">
+            -->
+        </div>
+    </div>
+    <footer>
+        
+        <div class=" footer_item footer_company">
+            &copy;{{ .year }} {{ .company }}
+        </div>
+        <div class="footer_item footer_logo"> 
+            <img src="/assets/img/hexagon_qdas.png">
+        </div>
+    </footer>
+</body>
+<script src="/assets/Scripts/helperFunctions.js"></script>
+<script src="/assets/Scripts/backendCalls.js"></script>
+<script defer src="/assets/Scripts/formRenderer.js"></script>
+

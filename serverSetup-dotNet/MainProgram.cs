@@ -3,7 +3,7 @@ using App.Configurations; //container of all configurations for applications
 using Microsoft.Extensions.Configuration; //to access the AddJsonfile extension
 using BackgroundHostingService; // to run the application as background service;
 using App.Routings; // to publish the routes to app
-
+using BackendServices; // to engage extension methods of AddServices
 
 namespace WebService 
 {
@@ -33,7 +33,7 @@ namespace WebService
             */
             //getting the builder ready;
                 //Adding Services
-                //builder.AddServices(appConfigs);
+                builder.AddServices(appConfigs);
                 //builder.Configuration
                 var app = builder.Build();
             //
@@ -43,7 +43,7 @@ namespace WebService
             // Enable to add custome MiddleWare in the processing pipelines 
             //app.AddCustomMiddleware(); 
             //enable CORS 
-            //app.UseCors();
+            app.UseCors();
             //enabled the serving staticfiles to fetch image/media files 
             app.UseStaticFiles();
             // add URL endpoints 

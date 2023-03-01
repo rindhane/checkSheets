@@ -1,49 +1,134 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <!--
-        https://stackoverflow.com/questions/17493601/what-is-the-code-to-remove-this-symbol-%C3%82-in-html
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
-    -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
-    <link
-			href="https://fonts.googleapis.com/css?family=Poppins:400,500&display=swap"
-			rel="stylesheet"
-	/>
-    <link rel="stylesheet" href="/assets/CSS/master.css">
-    <!--
-        <link rel="stylesheet" href="./individual.css">
-    -->
-    <title>QDas Dashboard</title>
-    <link rel="icon" href="/favicon.png">
-</head>
-<body onload="console.log('loaded');">
-    <header>
-        <div class="logo-container">
-            <img src="/assets/img/client.png" alt="logo">  
-        </div>
-        <div class="header-title">
-            <div class="titleContent">Q-DAS Traceability Dashboard</div> 
-        </div>
-        <nav>
-            <ul class="nav-links">
-                <li class="nav-link-outer "><a class="nav-link" href="#">Home Page</a></li>
-                <li class="nav-link-outer "><a class="nav-link" href="#">Dashboard</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <div class="testMain">
-            hello world
-        </div>
-    </main>
-    <footer>
-        <div class="footer-client">&copy; 2022 - XYZ Corp Ltd</div>
-        <div class="disclaimer">
-            Powered By : 
-            <img class="footer-logo" src="/assets/img/hexagon_qdas.png"/>
-        </div>
-    </footer>
-    <script src="/assets/Scripts/preloadUtilities.js"></script>
-</body>
+    <head>
+        <link rel="stylesheet" href="/assets/CSS/main.css">
+        <link rel="stylesheet" href="/assets/CSS/adminBoard.css">
+        <link rel="icon" type="image/x-icon" href="/favicon.png">
+        <title>Admin Dashboard</title>
+    </head>
+    <body>
+        <header>
+            <div class="logo-container">
+                <img src="/assets/img/client.png" style="max-height:50px;max-width:50px;" alt="logo">  
+            </div>
+            <div class="header-title">
+                <div class="titleContent">Admin Page</div> 
+            </div>
+        </header>
+        <main>
+            <div class="sideBar" id="sideBar">
+                    <a href="#">Home</a>
+                    <a href="#">Birth Certificate</a>
+                    <a href="#">Settings</a>
+                    <a href="/checkSheet">Prototype CheckList</a>
+            </div>
+            <div class="userBlock">
+                <div class="topPanel">
+                    <div class="DirectoryNav">
+                        <span class="UserName">User</span>
+                        <span>/</span>
+                        <span>Home</span>
+                    </div>
+                    <div class="icon-button" onclick="raiseModal()">
+                        <div class="Icon-Add">
+                        </div>
+                        <span >New CheckSheet</span>
+                    </div>
+                </div>
+                <div class="IssueTable" id="IssueTable">
+                    <div class="itemSection tableHeader">
+                        <div class="item shortBlock">Sr</div>
+                        <div class="item descBlock">CheckSheet Name</div>
+                        <div class="item">Model</div>
+                        <div class="item">Actions</div>
+                    </div>
+                    <!--
+                    <div class="itemSection">
+                        <div class="item shortBlock">1</div>
+                        <div class="item descBlock">Qdas Not Working release work</div>
+                        <div class="item"> 03/Feb/2023</div>
+                        <div class="item">Assigned</div>
+                    </div>
+                    -->
+                </div>
+            </div>
+        </main>
+        <div class="modalBackground" id="modalBackground">
+        </div>   
+        <footer>
+            <div class=" footer_item footer_company footer-client">
+                &copy;{{ .year }} {{ .company }}
+            </div>
+            <div class="footer_item footer_logo"> 
+                <img src="/assets/img/hexagon_qdas.png">
+            </div>
+        </footer>
+        <template id="modal_template">
+            <div class="modal" id="modal">
+                <span class="close" id="close" onclick="closeModal();">Close &times;</span>
+                <div class="modalHeading">
+                    New CheckSheet creation Form
+                </div>
+                <div class="modalSection">
+                    <div class="inputType">
+                        <label for="issueType">
+                            Provide applicable Model : 
+                        </label>
+                        <input type="text"  id="Model_Details">
+                    </div>
+                </div>
+                <div class="modalSection">
+                    <div class="inputType">
+                        <label for="issueType">
+                            Provide Name for the CheckSheet
+                        </label>
+                        <input type="text" id="Name_CheckSheet">
+                    </div>
+                </div>
+                <div class="modalSection">
+                    <div class="inputType">
+                        <span>Do you want to generate from existing CheckSheet : </span>
+                        <input name='templateOption' type="radio" id="yesTemplate" onchange="provideTemplateOption(event,this);">
+                        <label for="templateOption">
+                            Yes
+                        </label>
+                        <input name='templateOption' type="radio" id="noTemplate" checked onchange="hideOption(event,this);" >
+                        <label for="templateOption" >
+                            No
+                        </label>
+                        <div class="inputType hideContainer" id="modelProvider">
+                            <select name="modelSelection" onchange="activateCheckSheetOption(event,this)">
+                                <option value="0" selected> Choose Model</option>
+                                <option>QSK60</option>
+                            </select>
+                            &nbsp; &nbsp;
+                            <select  class="hideContainer" name="checkSheetSelection">
+                                <option value="0" selected> Choose CheckSheet</option>
+                                <option>QSK60</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="hideContainer">
+                    <div class="modalSection big_input_box">
+                        <label for="Decription"> Description about the Issue</label>
+                        <textarea name="Description" id="issueDescription"></textarea>
+                    </div>
+                </div>
+                <button class="modalButton" onclick="saveNewCheckSheetDetails(event,this)">Save</button>
+            </div>
+            
+        </template>
+        <script src="/assets/Scripts/preloadUtilities.js"></script>
+        <script src="/assets/Scripts/helperFunctions.js"></script>
+        <script src="/assets/Scripts/adminRendererFunctions.js"></script>
+        <script defer>
+            //rendering the page
+            (async()=>{
+                //renderSidebar();
+                let result= await getCheckSheetUser();
+                renderIssueTable(IssueTable,result);
+            })();
+        </script>  
+    </body>
 </html>

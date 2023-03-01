@@ -1,4 +1,5 @@
 <!DOCTYPE html> 
+<html>
 <head>
     <link rel="stylesheet" type="text/css" href="/assets/CSS/main.css">
     <title>QDas Checksheets</title>
@@ -6,7 +7,12 @@
 </head>
 <body>
     <header>
-        <img src="/assets/img/client.png" style="max-height:50px;max-width:50px;">
+        <div class="logo-container">
+            <img src="/assets/img/client.png" style="max-height:50px;max-width:50px;" alt="logo">  
+        </div>
+        <div class="header-title">
+            <div class="titleContent">Sample CheckList</div> 
+        </div>
     </header>
     <div class="authoringCheckContainer">
         <fieldset>
@@ -18,6 +24,28 @@
                 </label>
             </div>
         </fieldset>
+    </div>
+    <div class="checkListHeader">
+        <div class="headerRow">
+            <div class="headerRowItem">
+                <label for="ESN">Engine Serial Number</label>
+                <input class="headerInput" type="text" placeholder="ESN Details">
+            </div>
+            <div class="headerRowItem">
+                <label for="ESN">Model Number</label>
+                <input class="headerInput"  type="text" placeholder="Model Number">
+            </div>
+        </div>
+        <div class="headerRow">
+            <div class="headerRowItem">
+                <label for="order">Shop Order</label>
+                <input class="headerInput"  type="text" placeholder="order Number">
+            </div>
+            <div class="headerRowItem">
+                <label for="date">Date of Acceptance</label>
+                <input class="headerInput"  type="text" placeholder="Date Entry">
+            </div>
+        </div>
     </div>
     <main id="main">
         <div class="formFieldContainer" id="contentSection">
@@ -429,8 +457,10 @@
             <img src="/assets/img/hexagon_qdas.png">
         </div>
     </footer>
+    <script src="/assets/Scripts/preloadUtilities.js"></script>
+    <script src="/assets/Scripts/helperFunctions.js"></script>
+    <script src="/assets/Scripts/backendCalls.js"></script>
+    <script defer src="/assets/Scripts/formRenderer.js"></script>
 </body>
-<script src="/assets/Scripts/preloadUtilities.js"></script>
-<script src="/assets/Scripts/helperFunctions.js"></script>
-<script src="/assets/Scripts/backendCalls.js"></script>
-<script defer src="/assets/Scripts/formRenderer.js"></script>
+</html>
+

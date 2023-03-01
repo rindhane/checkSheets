@@ -16,6 +16,7 @@ namespace App.Configurations
         public string qdasConfig {get;}
 
         public string jwt_url {get;}
+        public string storageDirectory{get;}
 
 
         public SystemConfigurations () 
@@ -24,6 +25,7 @@ namespace App.Configurations
             {
                 WebRootPath = "wwwroot"
             };
+            storageDirectory="checkSheetsData";
             configFile = "ServerConfig.json";
             resultFile = "result.dat";
             dataFile="DataStorage/data.json";

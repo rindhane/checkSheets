@@ -1,0 +1,101 @@
+
+.key-text{
+    font-size: calc(1.3rem + .6vw);
+    font-weight: 400;
+}
+
+.main-content{
+    display: flex;
+    height:100vh;
+    width:100%;
+    background-color: var(--background-color);
+    justify-content: center;
+}
+
+.main-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:50%;
+}
+
+.form-floating, .checkbox{
+    position: relative;
+    width:60%;
+}
+
+.form-control{
+    appearance: none;
+    display: block;
+    border-radius: .375rem;
+    color:#212529;
+    background-color: #fff;
+    font-weight: 400;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    height : calc(3.5rem + 2px);
+    width: 100% ;
+}
+
+label.inputs{
+    color:#212529;
+    display:inline-block;
+    text-align:start;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition-property: opacity, transform;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out, ease-in-out;
+    transition-delay: 0s, 0s;
+    font-size: 2vh;
+    transform-origin: 0 0;
+    margin : 10px;
+}
+
+.form-control:focus~.inputs{
+    opacity: 0.9;
+    transform: scale(0.5);
+}
+.signUpContainer{
+    display:flex;
+    justify-content: center;
+    background-color: var(--background-color);
+    height:10vh;
+}
+
+
+
+form > img{
+    width:100% ;
+    max-width: 200px;
+    height: 80px;
+}
+
+.text-muted{
+    color: grey;
+}
+
+::placeholder {
+    color: transparent;
+}
+
+.otpContainer{
+    display:flex;
+}
+.btn-primary {
+    border-radius :0.5rem;
+    color:var(--btn-text);
+    background: var(--btn-color);
+    padding: 10px;
+    width:100%;
+    max-width: 200px;
+}
+.loginLogo{
+    height:100px;
+    width:auto;
+}
+
+

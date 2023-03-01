@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+    <link
+			href="https://fonts.googleapis.com/css?family=Poppins:400,500&display=swap"
+			rel="stylesheet"
+	/>
+  <link rel="stylesheet" href="/assets/CSS/main.css">
+  <link rel="stylesheet" href="/assets/CSS/login.css">
+  <title>QDas Dashboard</title>
+  <link rel="icon" href="/assets/img/icons/favicon.png">
+</head>
+<body>
+  <div class="main-content">
+    <form class="main-form" id="signInForm" >
+      <img src="/assets/img/client.png" alt="logo" class="loginLogo">
+      <div class="key-text">Please sign in</div>
+      <div class="form-floating" >
+        <input type="email" name="email" class="form-control" id="loginInput" placeholder="name@example.com">
+        <label class="inputs" for="loginInput">Email address</label>
+      </div>
+      <div class="form-floating">
+        <input type="password" name="password" class="form-control" id="loginPassword" placeholder="Password">
+        <label class="inputs"  for="loginPassword">Password</label>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" value="remember-me"> Remember me
+        </label>
+      </div>
+      <button class="btn-primary" type="submit" onclick="doTrialRouting(event,this)">Sign in</button>
+      <p class="text-muted">© 2017–2023</p>
+    </form>
+  </div>
+  <script src="/assets/Scripts/helperFunctions.js"></script>
+  <!--
+    <script defer src="/assets/Scripts/pageRendererFunctions.js"></script>
+  -->
+</body>
+<script>
+  async function doTrialRouting(event,elem){
+    event.preventDefault();
+    window.location.href='/admin'
+  }
+</script>
+</html>

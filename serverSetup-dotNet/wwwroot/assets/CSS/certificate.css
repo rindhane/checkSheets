@@ -1,0 +1,115 @@
+:root{
+    --page-width : 90vw;
+    font-family:  Calibri,sans-serif;
+
+}
+.column-flex{
+    display: flex;
+    flex-direction: column;
+}
+.certificateContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width:90vw;
+    margin-left: 5vw;
+    border: 3px solid black;
+}
+.fullWidthRow{
+    display: flex;
+    width:var(--page-width);
+}
+.certificateSection{
+    display: flex;
+    flex-basis: 100%; /*full width of the parent*/
+    flex-direction: column;
+}
+.sectionContainerBox{
+    display: flex;
+    flex-direction: column;
+    border-bottom: 2px solid black;
+}
+.sectionHeader{
+    display:flex;
+    padding-bottom: 1vh;
+    padding-top:1vh;
+
+    justify-content: space-between;
+}
+.sectionTitle{
+    font-size: large;
+    font-weight: bold;
+    text-decoration: underline;
+    font-family:  Georgia, serif;
+    padding-left: 1vw;
+}
+.sectionStatus{
+    display:flex;
+    padding-right:1vw;
+    background-color: rgb(218, 41, 28);
+    margin-right:0.3vw;
+
+    padding-right: 3vw;
+    font-weight: bold;
+    color:white;
+}
+.detailBlock{
+    display:flex;
+    flex-flow: wrap;
+    gap: 2vh 2vw;
+    margin: 2vw;
+
+}
+.fixedWidthDetailBox{
+    display:flex;
+    width : 20%;
+}
+.largeWidth{
+    width: 30%;
+}
+.mediumWidth{
+    width:20%;
+}
+.smallWidth{
+    width:16%;
+}
+.propertyName{
+    display: inline-block;
+    width:40%;
+    font-weight:600;
+    font-family: Arial;
+    font-size: min(1.6vw, 1.6vh);
+    overflow:auto;
+    overflow-wrap: break-word;
+}
+
+.smallName{
+    font-size: min(1.2vw, 1.2vh);
+}
+
+.propertyValue{
+    display: inline-block;
+    width:60%;
+    
+    color: grey;
+    font-size: min(1.4vw, 1.4vh);
+    overflow:auto;
+    overflow-wrap: break-word;
+}
+.fullWidthParent{
+    width:100%;
+    padding-left:1vw;
+}
+.startDivider:not(:nth-child(5n+1)){
+    border-left: 1px solid black;
+}
+.colouredName{
+    color:rgb(10, 169, 222);
+}
+.dangerColourName{
+    color:rgb(244, 67, 67);
+}
+.reportSelector{
+    color:white;
+    background-color:rgb(218, 41, 28) ;
+}

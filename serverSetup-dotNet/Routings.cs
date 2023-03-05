@@ -14,6 +14,7 @@ public static class Routes{
         app.MapGet("/checkSheet", RouteMethods.pageRedirect);
         app.MapPost("/UserCheckSheets",RouteMethods.userCheckSheets);
         app.MapPost("/newCheckSheet",RouteMethods.newCheckSheet);
+        app.MapGet("/birthCertificate", RouteMethods.pageRedirect);
         app.MapGet("/test", RouteMethods.test);
         app.MapPost("/test", RouteMethods.test);
         return app;

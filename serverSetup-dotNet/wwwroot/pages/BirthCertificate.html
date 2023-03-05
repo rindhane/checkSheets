@@ -1,0 +1,143 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/assets/CSS/main.css">
+    <link rel="stylesheet" type="text/css" href="/assets/CSS/certificate.css">
+    <title>QDas Checksheets</title>
+    <link rel="icon" href="/favicon.png">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="/assets/img/client.png" style="max-height:50px;max-width:50px;" alt="logo">  
+        </div>
+        <div class="header-title">
+            <div class="titleContent">Cummins Engine Birth Certificate</div> 
+        </div>
+        <select class="reportSelector" id="reportSelector"> 
+            <option value="internal" selected>Internal</option>
+            <option value="external">External</option>
+        </select>
+    </header>
+    <main id="main"> 
+        <div class="certificateContainer" id="certificateContainer">
+            <div class="fullWidthRow">
+                <div class="certificateSection" id="overview">
+                    <div class="sectionContainerBox">
+                        <div class="sectionHeader">
+                            <div class="sectionTitle">
+                                <span id="serialNumber">1.</span>
+                                Engine Overview
+                            </div>
+                            <div class="sectionStatus">
+                                Engine Status:&nbsp;<span id="EngineStatus"> Ok</span>
+                            </div>
+                        </div>
+                        <div class="detailBlock">
+                            <div class="fixedWidthDetailBox largeWidth">
+                                <div class="propertyName">
+                                    Customer Name :
+                                </div>
+                                &nbsp;&nbsp;
+                                <div class="propertyValue">
+                                    Customer Add/Code
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox largeWidth">
+                                <div class="propertyName">
+                                    something to write Name :
+                                </div>
+                                &nbsp;&nbsp;
+                                <div class="propertyValue">
+                                    CustomerAdd/CodeintheLongestvaluetosensitivize
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox largeWidth">
+                                <div class="propertyName">
+                                    something to write Name :
+                                </div>
+                                &nbsp;&nbsp;
+                                <div class="propertyValue">
+                                    Customer Add/Code
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox largeWidth">
+                                <div class="propertyName">
+                                    something to write Name :
+                                </div>
+                                &nbsp;&nbsp;
+                                <div class="propertyValue">
+                                    CustomerAdd/Code
+                                </div>
+                            </div>
+                        </div>  
+                    </div>
+                    <div class="sectionContainerBox">
+                        <div class="sectionHeader">                       
+                            <div class="sectionTitle">
+                                <span id="serialNumber">2.</span>
+                                Engine Genealogy (Serial Nos.)
+                            </div>
+                        </div>
+                        <div class="detailBlock">
+                            <div class="fixedWidthDetailBox mediumWidth column-flex startDivider">
+                                <div class="propertyName colouredName smallName fullWidthParent">
+                                    Cylinder Block
+                                </div>
+                                <div class="propertyValue fullWidthParent">
+                                    12345672201100VKEPHC01
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox mediumWidth column-flex  startDivider">
+                                <div class="propertyName colouredName smallName fullWidthParent">
+                                    Cylinder Block
+                                </div>
+                                <div class="propertyValue fullWidthParent">
+                                    12345672201100VKEPHC01
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox mediumWidth column-flex startDivider">
+                                <div class="propertyName colouredName smallName fullWidthParent">
+                                    Cylinder Block
+                                </div>
+                                <div class="propertyValue fullWidthParent">
+                                    12345672201100VKEPHC01
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox mediumWidth column-flex startDivider">
+                                <div class="propertyName colouredName smallName fullWidthParent">
+                                    Cylinder Block
+                                </div>
+                                <div class="propertyValue fullWidthParent">
+                                    12345672201100VKEPHC01
+                                </div>
+                            </div>
+                            <div class="fixedWidthDetailBox mediumWidth column-flex">
+                                <div class="propertyName colouredName smallName fullWidthParent">
+                                    Cylinder Block
+                                </div>
+                                <div class="propertyValue fullWidthParent">
+                                    12345672201100VKEPHC01
+                                </div>
+                            </div>
+                        </div>
+                    </div>        
+                </div>
+           </div> 
+        </div>
+    </main>
+    <footer>       
+        <div class=" footer_item footer_company footer-client">
+            &copy;{{ .year }} {{ .company }}
+        </div>
+        <div class="footer_item footer_logo"> 
+            <img src="/assets/img/hexagon_qdas.png">
+        </div>
+    </footer>
+    <script src="/assets/Scripts/preloadUtilities.js"></script>
+    <script src="/assets/Scripts/helperFunctions.js"></script>
+    <script src="/assets/Scripts/backendCalls.js"></script>
+    <script src="/assets/Scripts/certificateRenderer.js"></script>
+</body>
+</html>
+

@@ -366,6 +366,7 @@ async function populateForm(recordArray, formElem){
         formElem.appendChild(await generateSection(recordArray[i]));
         formElem.appendChild(sectionDividerElementAuthoring(i,sectionDividerContainer.innerHTML));
     }
+    formElem.appendChild(await generateReworkSection());
 }
 
 populateForm(MasterArray,fieldContainerElement,);
@@ -926,3 +927,32 @@ fieldJson={
 }
 */
 
+async function generateReworkSection() {
+    const sectionBase = reworkSectionConfiguratorBaseTemplate();     
+    return sectionBase;
+}
+async function reworkSectionConfiguratorBaseTemplate(){
+    const htmlString= 
+    `
+    <div class="reworkContainer">
+        <fieldset>
+            <legend>Rework Section</legend>
+            <label for="reworkQuestion">
+                <span>Want to add details about rework ?</span>
+                <input type="radio" name="reworkOption" value="1" onclick="OnCheckRework(event,this);"><label>Yes</label>
+                <input type=radio name="reworkOption" value="0" checked><label>No</label>
+            </label>
+            <select id="stationSelector" class="hideContainer">
+                <option value=1>Station-1</option>
+            </select>
+            <select id="fieldSelector" class="hideContainer"></select>
+        </fieldset>
+    </div>
+    `;
+    return htmlToElement(htmlString);
+}
+
+async function OnCheckRework(event, elem){
+    const fieldset=elem.parentElement.parentElement;
+    //fieldset.querySelector();
+}

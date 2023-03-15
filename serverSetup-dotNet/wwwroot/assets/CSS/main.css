@@ -101,6 +101,7 @@ footer{
     margin-bottom: 2vh;
 
 }
+
 /*
 .sectionContainer:not(:first-child){
     border-bottom: 1px solid blue;
@@ -447,3 +448,12 @@ border-radius: 50%;
 .hideDisplayContainer{
     display:none;
 }
+input[type=text].inputLarge, input[type=email], input[type="password"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }

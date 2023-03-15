@@ -1,0 +1,36 @@
+.optionsContainer{
+    display:flex;
+    margin:5px;
+    margin-left: 5vw;
+    padding: 10px ;
+    width:90%;
+    border-radius: 20px;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px; /* ref: https://getcssscan.com/css-box-shadow-examples */
+    background-color: lightgrey;
+    justify-content: space-around;
+}
+.optionsMenu{
+    display:flex;
+    flex-basis: 25%;
+    flex-shrink: 1;
+}
+.menuContainer{
+    display: flex;
+    flex-grow : 1;
+    align-items: center;
+}
+input.optionSelectorChild, select.optionSelectorChild {
+    height: calc(2rem + 2px);
+}
+select.optionSelectorChild{
+    width: 65%;
+}
+.menuLabel{
+    color: darkblue;
+}
+.labelImage{
+    
+    max-height: 50px;
+    width: auto;
+    object-fit: scale-down;
+}

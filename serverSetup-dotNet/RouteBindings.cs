@@ -15,10 +15,11 @@ namespace App.RouteBindings
     public static IResult pageRedirect(HttpRequest request){
       return Results.LocalRedirect($"~/pages{request.Path}.html",false,true);
     }
-    public static IResult pageRedirectWithParams(HttpRequest request){
-      var param="serialNum";
-      var val = request.Query[$"{param}"];
-      return Results.LocalRedirect($"~{request.Path}/index.html?{param}={val}",false,true);
+    public static IResult pageRedirectWithParams(HttpRequest request, HttpContext context){
+      var urlRedirect = httpHandlers.addParamsToURL($"~/pages{request.Path}.html",request.QueryString.ToString());
+      //var val = request.Query[$"{param}"];
+      //return Results.LocalRedirect($"~/pages{request.Path}.html?{param}={val}",false,true);
+      return Results.LocalRedirect(urlRedirect,false,true);
     }
 
     public static IResult MoveToHomeScreen(HttpRequest request){
@@ -35,6 +36,21 @@ namespace App.RouteBindings
       data=await context.Request.ReadFromJsonAsync<createCheckSheet>();
       fileHandler.createNewCheckSheet(data!); 
       await context.Response.WriteAsync("done");
+    }
+    public static async Task getCheckSheetData(HttpContext context, HttpRequest request, IFileHandler fileHandler){
+      var data= new checkSheet();
+      //string bodyString = httpHandlers.getRequestBody(request.Body);
+      data = await context.Request.ReadFromJsonAsync<checkSheet>();
+      var resultJSONString = fileHandler.getCheckSheet(data!);
+      await context.Response.WriteAsync(resultJSONString);
+    }
+
+    public static async Task saveCheckSheet(HttpContext context, HttpRequest request, IFileHandler fileHandler){
+      var data= new updateCheckSheet();
+      //string bodyString = httpHandlers.getRequestBody(request.Body);
+      data = await context.Request.ReadFromJsonAsync<updateCheckSheet>();
+      var result = fileHandler.updateCheckSheet(data!.checkSheetDetail!, data.JsonString!); 
+      await context.Response.WriteAsync(result.ToString());
     }
 
     public static async Task test(HttpContext context, HttpRequest request, IFileHandler fileHandler){

@@ -40,7 +40,7 @@ function generateDOMattributes(txt){
     };
 }
 
-function generateLastActionElement(){
+function generateLastActionElement(model,checkSheetName){
     const htmlString = 
     `
     <div class=" item ">
@@ -48,8 +48,15 @@ function generateLastActionElement(){
         <img src="/assets/img/icons/edit.png">
     </div>
     `;
-    return htmlToElement(htmlString);
+    const result = htmlToElement(htmlString); 
+    result.children[1].onclick= async ()=>{
+        redirectToSheet(model,checkSheetName);
+    }
+    return result ;
 }
+async function redirectToSheet(model,checkSheetName){
+    window.location.href=`/checksheet?model=${model}&sheet=${checkSheetName}&mode=author`;
+} 
 
 async function renderIssueTable(tableElem, issueBlock){
     const Header = `
@@ -89,7 +96,7 @@ function generateItemSectionDOM(issueObj, index){
         let chilElem=generateDomElement(attrib.domTyp,attrib.classArray,issueObj[element]);
         sectionElement.appendChild(chilElem);
     }); 
-    sectionElement.appendChild(generateLastActionElement(issueObj["shortDesc"])); // adding edit & delete icons for action columns
+    sectionElement.appendChild(generateLastActionElement( issueObj["status"] ,issueObj["shortDesc"])); // adding edit & delete icons for action columns
     return sectionElement;
 }
 
@@ -197,3 +204,4 @@ async function activateCheckSheetOption(event,modelSelectElem){
     checkSheetSelector.classList.add("hideContainer");
     return;
 }
+

@@ -11,12 +11,15 @@ public static class Routes{
         app.MapGet("/", RouteMethods.MoveToHomeScreen);
         app.MapGet("/login",RouteMethods.pageRedirect);
         app.MapGet("/Admin",RouteMethods.pageRedirect);
-        app.MapGet("/checkSheet", RouteMethods.pageRedirect);
+        app.MapGet("/checkSheet", RouteMethods.pageRedirectWithParams);
         app.MapPost("/UserCheckSheets",RouteMethods.userCheckSheets);
         app.MapPost("/newCheckSheet",RouteMethods.newCheckSheet);
         app.MapGet("/birthCertificate", RouteMethods.pageRedirect);
         app.MapGet("/test", RouteMethods.test);
         app.MapPost("/test", RouteMethods.test);
+        app.MapGet("/InspectionEntry",RouteMethods.pageRedirectWithParams);
+        app.MapPost("/GetCheckSheetData", RouteMethods.getCheckSheetData);
+        app.MapPost("/saveAuthorCheckSheet",RouteMethods.saveCheckSheet);
         return app;
     }
 }  

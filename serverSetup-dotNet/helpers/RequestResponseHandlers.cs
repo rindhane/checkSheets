@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections;
 
 namespace RequestResponseHandlers{
     public static class httpHandlers {
@@ -7,5 +8,10 @@ namespace RequestResponseHandlers{
             string tempString = reader.ReadToEndAsync().GetAwaiter().GetResult();
             return tempString;
         }
+
+        public static string addParamsToURL(string baseURL, string queryString){
+            return baseURL+queryString;
+        }
     }
+
 }

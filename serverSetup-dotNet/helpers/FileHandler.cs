@@ -22,6 +22,12 @@ namespace FileHandler {
         public bool fromExisting {get;set;}
         public checkSheet? refCheckSheet{get;set;}
     }
+
+    public record updateCheckSheet{
+        public checkSheet? checkSheetDetail{get;set;}
+        public string? JsonString {get;set;}
+    }
+
     public class ResultHandler:IFileHandler {
         
         private string _directoryPath ;

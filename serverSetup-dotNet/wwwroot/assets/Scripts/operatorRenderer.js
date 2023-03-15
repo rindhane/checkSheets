@@ -383,15 +383,13 @@ function sectionDividerElementAuthoring(index, htmlString)
     return htmlNode;
 }
 
-async function generateFormAccessories(type){
+async function generateFormAccessories(){
     const mainBox = document.getElementById("main");
-    if(type=="author"){
-        const authoringSwitchContainer = await authoringModeTemplateGeneratedElement();
-        const authModeSwitch = authoringSwitchContainer.querySelector("#authoringModeSwitch");
-        authModeSwitch.addEventListener("input", actionOnAuthModeSelection);
-        mainBox.insertAdjacentElement('beforebegin', authoringSwitchContainer);
-    }
+    const authoringSwitchContainer = await authoringModeTemplateGeneratedElement();
+    const authModeSwitch = authoringSwitchContainer.querySelector("#authoringModeSwitch");
     const checkFixedHeader = await checkListHeaderGeneratedElement();
+    authModeSwitch.addEventListener("input", actionOnAuthModeSelection);
+    mainBox.insertAdjacentElement('beforebegin', authoringSwitchContainer);
     mainBox.insertAdjacentElement('beforebegin', checkFixedHeader);
 }
 async function populateForm(recordArray, formElem){
@@ -408,7 +406,7 @@ async function populateForm(recordArray, formElem){
         if(provideTopFilterTruthy(recordArray[i].descText)){
             formElem.appendChild(await generateSection(recordArray[i]));
             formElem.appendChild(sectionDividerElementAuthoring(i,sectionDividerContainer.innerHTML));
-        }
+        }  
     }
     if(provideTopFilterTruthy("Rework")){
         formElem.appendChild(await generateReworkSection());
@@ -416,19 +414,14 @@ async function populateForm(recordArray, formElem){
 }
 
 async function getCheckSheetJSONDataFromBackend(){
-    const model = new URLSearchParams(window.location.search).get("model");
-    const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
-    await getCheckSheetData(model,checkSheetName);
+    await getCheckSheetData();
 }
 
 async function initiateChecklistPresenting(){
-    const mode = new URLSearchParams(window.location.search).get("mode");
-    if(mode!="author"){
-        operatorLogin();
-    }
-    generateFormAccessories(mode);
-    await getCheckSheetJSONDataFromBackend();
+    operatorLogin();
+    //generateFormAccessories();
     populateOptionInTopFilter();
+    await getCheckSheetJSONDataFromBackend();
     populateForm(MasterArray,fieldContainerElement,);
 }
 initiateChecklistPresenting(); //entryPoint
@@ -1170,10 +1163,10 @@ async function pushReworkOnSave(event,elem){
 
 async function populateRework(recordArray, formElem){
     let resultElem = htmlToElement('<div class="reWorkFieldContainerBox" id="reworkUpdates"></div>');
-    let formHeader= document.getElementById("sectionTableHeaderNone");
+    let formHeader = document.getElementById("sectionTableHeaderNone");
     let sectionDividerContainer = document.getElementById("sectionDividerTemplateContainerNone");
     resultElem.appendChild(htmlToElement(formHeader.innerHTML));
-    for(let i=0; i<recordArray.length;i++)
+    for(let i=0; i<recordArray.length; i++)
     {
         resultElem.appendChild(await generateSection(recordArray[i]));
         resultElem.appendChild(sectionDividerElementAuthoring(i,sectionDividerContainer.innerHTML));
@@ -1227,15 +1220,10 @@ async function checkListHeaderGeneratedElement(){
 }
 
 //communication with the backend
-async function getCheckSheetData(model,checkSheetName){
-    /*
+async function getCheckSheetData(){
     const checkSheetDetail={
         status:"QSK60",
         shortDesc:"QSK60Total",
-    };*/
-    const checkSheetDetail={
-        status:model,
-        shortDesc:checkSheetName,
     };
     const {status, data}= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
     if(status==200){
@@ -1243,12 +1231,10 @@ async function getCheckSheetData(model,checkSheetName){
     }
 }
 async function saveAuthoredCheckSheetWithBackend(){
-    const model = new URLSearchParams(window.location.search).get("model");
-    const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
     const checkSheetJSONTemplate={
         checkSheetDetail:{
-            status:model,
-            shortDesc:checkSheetName,
+            status:"QSK60",
+            shortDesc:"QSK60Total",
         },
         JsonString:JSON.stringify(MasterArray),
     }

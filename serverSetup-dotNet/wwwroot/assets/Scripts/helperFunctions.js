@@ -25,6 +25,17 @@ function htmlToElement(htmlString) {
 }
 
 
+function htmlToMultiElement(htmlString){
+	//ref:
+		//https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+		//https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+		let template = document.createElement('template');
+		html = htmlString.trim(); // Never return a text node of whitespace as the result
+		template.innerHTML = html;
+		return template.content.children;
+}
+
+
 //preparing payloads 
 async function formDatatoJson(form){
     data = new FormData(form);

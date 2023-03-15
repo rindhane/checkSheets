@@ -6,8 +6,12 @@
     row-gap: 5%;  
     
     margin:10px;
-    background-color: rgb(190, 175, 175);
+    background: linear-gradient(90turn,rgb(225, 17, 17), #979a95, #291615);
     border-radius: 5px;
+}
+.sideBar>a{
+    text-decoration:none;
+    color:white;
 }
 
 .userBlock{
@@ -25,7 +29,9 @@
 
     height:5vh;
     padding: 3px;
-    background: linear-gradient(to right,#e8f1f1,#e1e3e4);
+    background: linear-gradient(to left, #333, #333 50%, #eee 75%, #333 75%);
+    /*background: linear-gradient(to right,#e8f1f1,#e1e3e4);*/
+    color:white;
     margin-bottom: 1vh;
 }
 .icon-button{
@@ -85,7 +91,8 @@
 }
 
 .tableHeader{
-    background-color: #e8f1f1;
+    background-color: rgb(225, 17, 17);
+    color:white;
 }
 .shortBlock{
     width: 5vw;

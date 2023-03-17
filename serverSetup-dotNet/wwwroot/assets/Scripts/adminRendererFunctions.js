@@ -6,9 +6,9 @@ const templateHTML = document.getElementById("modal_template");
 let CHECKSHEETARRAY = [];
 
 async function getCheckSheetUser(url="/UserCheckSheets"){
-    const {status:stat, data:rawText}=await postJsonData(url,"give userData");
+    const response={status:stat, data:rawText}=await postJsonData(url,"give userData");
     if (rawText!=null && rawText!="" && rawText!=undefined){
-        CHECKSHEETARRAY=responseToJson(rawText);    
+        CHECKSHEETARRAY=responseToJson(response);    
     }
     return CHECKSHEETARRAY;
     /*
@@ -161,7 +161,7 @@ async function provideTemplateOption(event,elem){
         modelSelector.innerHTML="";
         const initialOption = htmlToElement(`<option value="0" selected> Choose Model</option>`);
         modelSelector.appendChild(initialOption);
-        result.forEach(model=>{
+        new Set(result).forEach(model=>{
             const child=document.createElement("option");
             child.value=model;
             child.innerText=model;

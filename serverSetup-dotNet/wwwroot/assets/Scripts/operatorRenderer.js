@@ -1225,9 +1225,9 @@ async function getCheckSheetData(){
         status:"QSK60",
         shortDesc:"QSK60Total",
     };
-    const {status, data}= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
-    if(status==200){
-        MasterArray=responseToJson(data);
+    const response= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
+    if(response.status==200){
+        MasterArray=responseToJson(response);
     }
 }
 async function saveAuthoredCheckSheetWithBackend(){

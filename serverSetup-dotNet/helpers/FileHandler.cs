@@ -80,13 +80,13 @@ namespace FileHandler {
                 updateCheckSheet(dat.newCheckSheet,existingContent);
                 return true;
             }
-            updateCheckSheet(dat.newCheckSheet,"");
+            updateCheckSheet(dat.newCheckSheet,"[]");
             return true;
         }
         public void writeFile(string fileName, string content) {
             int buffer=4096;
             FileStream fs= new FileStream(_directoryPath+"/"+fileName,
-                                        FileMode.OpenOrCreate,
+                                        FileMode.Create,
                                         FileAccess.Write,
                                         FileShare.ReadWrite,
                                         buffer, FileOptions.Asynchronous);

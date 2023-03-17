@@ -66,8 +66,8 @@ async function postJsonData(url , Jsondata, authKey="qdasAuthToken"){
     return { status:status, data:data }
   };
 
-function responseToJson(textData){
-    return JSON.parse(textData);
+function responseToJson(response){
+    return JSON.parse(response.data);
 }
 
 

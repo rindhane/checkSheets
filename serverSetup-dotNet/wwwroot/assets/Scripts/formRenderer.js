@@ -1237,9 +1237,10 @@ async function getCheckSheetData(model,checkSheetName){
         status:model,
         shortDesc:checkSheetName,
     };
-    const {status, data}= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
-    if(status==200){
-        MasterArray=responseToJson(data);
+    const response= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
+    if(response.status==200){
+        MasterArray=responseToJson(response);
+        return MasterArray;
     }
 }
 async function saveAuthoredCheckSheetWithBackend(){
@@ -1263,19 +1264,95 @@ async function operatorLogin(){
     const operatorLogged=getKeyValueFromStorage(key);
     if(!operatorLogged)
     {
-        const modalContentTemplate = document.getElementById("modal_template");
-        modalContainer.innerHTML=modalContentTemplate.innerHTML;
+        //const modalContentTemplate = document.getElementById("modal_template");
+        const modalContentTemplate= generateLoginTemplate();
+        const modelSelector=modalContentTemplate.querySelector('select[name="modelSelection"]');
+        getCheckSheetInventory().then(
+            allSheetArray=>{
+                const modelSet = new Set(allSheetArray.map( item => {
+                    return item.status;       
+                }));
+                createOptionElements(modelSelector, modelSet, "Choose Model");
+            }     
+        );
+        modalContainer.appendChild(modalContentTemplate);
         modalContainer.style.display='flex';
     }
 }
+async function getCheckSheetInventory(){
+    const response = await postJsonData("/UserCheckSheets","getCheckSheets",);
+    return responseToJson(response);
+}
+function generateLoginTemplate(){
+    const htmlString =`
+    <div class="modal" id="modal">
+            <div class="modalHeading">
+                Login to fill the Inspection Details
+            </div>
+            <div class="modalSection">
+                <div class="inputType">
+                    <label for="issueType">
+                        Enter your WWID
+                    </label>
+                    <input type="text" class="inputLarge" id="Model_Details">
+                </div>
+            </div>
+            <div class="modalSection">
+                <div class="inputType">
+                    <label for="issueType">
+                        Enter login password
+                    </label>
+                    <input type="password" class="inputLarge" id="Name_CheckSheet">
+                </div>
+            </div>
+            <div class="modalSection">
+                <div class="inputType">
+                    <span>Select  Applicable Model :  </span>
+                    <div class="inputType " id="modelProvider">
+                        <select name="modelSelection" onchange="activateCheckSheetOption(event,this)">
+                        </select>
+                        &nbsp; &nbsp;
+                        <select class="hideContainer" name="checkSheetSelection" onchange="activateCheckSheetOption(event,this)" >
+                        </select>
+                        <select class="hideContainer" name="checkSheetOperationSelection">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="hideContainer">
+                <div class="modalSection big_input_box">
+                    <label for="Decription"> Description about the Issue</label>
+                    <textarea name="Description" id="issueDescription"></textarea>
+                </div>
+            </div>
+            <button class="modalButton btn-primary" onclick="operatorLoginDetails(event,this)">Initiate</button>
+        </div> 
+    `; 
+    return htmlToElement(htmlString);
+}
+
 async function activateCheckSheetOption(event,modelSelectElem){
     const modelSelectorContainer = modelSelectElem.parentElement;
-    const checkSheetSelector= modelSelectorContainer.querySelector('select[name=checkSheetSelection]');
-    const CHECKSHEETARRAY = ['Sample-1', "Sample-2"]; 
+    let zeroOption, checkSheetSelector, CHECKSHEETARRAY ; 
+    if(modelSelectElem.name=="modelSelection") {
+        zeroOption = "CheckSheet";
+        checkSheetSelector= modelSelectorContainer.querySelector('select[name=checkSheetSelection]');
+        const sheetInventory = await getCheckSheetInventory();
+        CHECKSHEETARRAY =  sheetInventory.filter(modelSheets=>modelSheets.status==modelSelectElem.value)
+                                             .map(sheet=>sheet.shortDesc);
+    }
+    if(modelSelectElem.name=="checkSheetSelection"){
+        zeroOption="Operation Station";
+        const model = modelSelectorContainer.querySelector('select[name="modelSelection"]');
+        checkSheetSelector= modelSelectorContainer.querySelector('select[name=checkSheetOperationSelection]');
+        const sheetMasterArray = await getCheckSheetData(model.value,modelSelectElem.value);
+        console.log(sheetMasterArray);
+        CHECKSHEETARRAY = sheetMasterArray.map(sheetSection=>sheetSection.descText);
+    }
     if(modelSelectElem.value!="0")
     {      
         checkSheetSelector.innerHTML="";
-        const initialOption = htmlToElement(`<option value="0" selected> Choose CheckSheet</option>`);
+        const initialOption = htmlToElement(`<option value="0" selected> Choose ${zeroOption}</option>`);
         checkSheetSelector.appendChild(initialOption);
         CHECKSHEETARRAY.forEach(sheetName=>{
             const child=document.createElement("option");

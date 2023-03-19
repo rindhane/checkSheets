@@ -71,7 +71,7 @@ function setNewSerialNumber(array){
 }
 
 //topFilter function
-async function populateOptionInTopFilter(){
+async function populateOptionInTopFilter(defaultFilter="All"){
     const selectElem= document.getElementById("operationSelector");
     selectElem.innerHTML='';
     const operationArray = MasterArray.map(section=>section.descText);
@@ -79,7 +79,7 @@ async function populateOptionInTopFilter(){
     operationArray.push("All & Rework");
     operationArray.push("Rework");
     createOptionElements(selectElem,operationArray,"Select Operation");
-    selectElem.value="All & Rework";
+    selectElem.value=defaultFilter ? defaultFilter : "All" ;
     selectElem.onchange=()=>{
         populateForm(MasterArray,fieldContainerElement,);
     }
@@ -87,9 +87,26 @@ async function populateOptionInTopFilter(){
 
 function provideTopFilterTruthy(key){
     const selectElem= document.getElementById("operationSelector");
+    if(selectElem.value=="0"){
+        return false;
+    }
     if(key==selectElem.value){
         return true;
     }
+    if(key=="$#header$#"){
+        if(selectElem.value=="Rework"){
+            return false;
+        }
+        return true;
+    }
+    /* //currently it is not required
+    if(key=="$#ReworkHeader$#"){
+        if(selectElem.value=="Rework" || selectElem.value=="All & Rework"){
+            return true;
+        }
+        return false;
+    }
+    */
     if(selectElem.value=='All' && key!="Rework"){
         return true;
     }
@@ -402,7 +419,10 @@ async function populateForm(recordArray, formElem){
         sectionDividerContainer = document.getElementById("sectionDividerTemplateContainerAuth");
     }
     formElem.innerHTML="";
-    formElem.appendChild(htmlToElement(formHeader.innerHTML));
+    if(provideTopFilterTruthy("$#header$#"))
+    {
+        formElem.appendChild(htmlToElement(formHeader.innerHTML));
+    }
     for(let i=0; i<recordArray.length;i++)
     {
         if(provideTopFilterTruthy(recordArray[i].descText)){
@@ -415,6 +435,15 @@ async function populateForm(recordArray, formElem){
     }
 }
 
+async function renderForm(){
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    const filter = new URLSearchParams(window.location.search).get("filter");;
+    generateFormAccessories(mode);
+    await getCheckSheetJSONDataFromBackend();
+    await populateOptionInTopFilter(defaultFilter=filter);
+    populateForm(MasterArray,fieldContainerElement,);
+}
+
 async function getCheckSheetJSONDataFromBackend(){
     const model = new URLSearchParams(window.location.search).get("model");
     const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
@@ -423,13 +452,14 @@ async function getCheckSheetJSONDataFromBackend(){
 
 async function initiateChecklistPresenting(){
     const mode = new URLSearchParams(window.location.search).get("mode");
+    let byPass = true;
     if(mode!="author"){
         operatorLogin();
+        byPass= false;
     }
-    generateFormAccessories(mode);
-    await getCheckSheetJSONDataFromBackend();
-    populateOptionInTopFilter();
-    populateForm(MasterArray,fieldContainerElement,);
+    if (byPass){
+        renderForm();
+    }
 }
 initiateChecklistPresenting(); //entryPoint
 
@@ -978,7 +1008,6 @@ async function fieldRenderFunction(event, elem){
     selectElement.classList.add('hideContainer');
 }
 
-
 /*
 fieldJson={
     'typ':"field",
@@ -1255,7 +1284,7 @@ async function saveAuthoredCheckSheetWithBackend(){
     }
     const {status, data}= await postJsonData("/saveAuthorCheckSheet" , checkSheetJSONTemplate,);
 
-    console.log(status, "checksheetSave");
+    //console.log(status, "checksheetSave");
 }
 
 //operator login functions: 
@@ -1277,7 +1306,11 @@ async function operatorLogin(){
         );
         modalContainer.appendChild(modalContentTemplate);
         modalContainer.style.display='flex';
+        return ;
     }
+    renderForm();
+    modalContainer.style.display='none';
+    return ;  
 }
 async function getCheckSheetInventory(){
     const response = await postJsonData("/UserCheckSheets","getCheckSheets",);
@@ -1346,7 +1379,6 @@ async function activateCheckSheetOption(event,modelSelectElem){
         const model = modelSelectorContainer.querySelector('select[name="modelSelection"]');
         checkSheetSelector= modelSelectorContainer.querySelector('select[name=checkSheetOperationSelection]');
         const sheetMasterArray = await getCheckSheetData(model.value,modelSelectElem.value);
-        console.log(sheetMasterArray);
         CHECKSHEETARRAY = sheetMasterArray.map(sheetSection=>sheetSection.descText);
     }
     if(modelSelectElem.value!="0")
@@ -1363,12 +1395,21 @@ async function activateCheckSheetOption(event,modelSelectElem){
         checkSheetSelector.classList.remove("hideContainer");
         return ;
     }
-    checkSheetSelector.options.selectedIndex=0;
+    checkSheetSelector.value="0"; //checkSheetSelector.options.selectedIndex=0;
+    if(modelSelectElem.name=="modelSelection"){
+            checkSheetSelector.onchange();
+    }
     checkSheetSelector.classList.add("hideContainer");
     return;
 }
 
 async function operatorLoginDetails(event,buttonElem){
     storeInLocalStorage("operatorWWID","temp-operator");
+    const modalElem= buttonElem.parentElement;
+    const model = modalElem.querySelector('select[name="modelSelection"]').value;
+    const checkSheet= modalElem.querySelector('select[name=checkSheetSelection]').value;
+    const operation= modalElem.querySelector('select[name=checkSheetOperationSelection]').value;
+    window.location.href=`/checkSheet?model=${model}&sheet=${checkSheet}&mode=operator&filter=${operation}`;
+    renderForm();
     modalContainer.style.display='none';  
 }

@@ -1,6 +1,7 @@
 ﻿using System.IO; //to get acces to the FileStream API 
 using System.Text; //to get the encoding.UTF8
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Hosting; //to access WebHostEnvironment interface;
 
 namespace FileHandler { 
 
@@ -31,7 +32,9 @@ namespace FileHandler {
     public class ResultHandler:IFileHandler {
         
         private string _directoryPath ;
-        public ResultHandler(string path) {
+        private string _contentRootPath; 
+        public ResultHandler(string path, IWebHostEnvironment webHostEnvironement) {
+           _contentRootPath =webHostEnvironement.ContentRootPath;
             _directoryPath = path;
             //_path = System.Environment.GetEnvironmentVariable("logFile");
         }
@@ -70,7 +73,10 @@ namespace FileHandler {
         }
         public string getCheckSheet(checkSheet dat){
             string fileName = dat.status + "/" + dat.shortDesc+".json";
-            return ReadFile(fileName);
+            if(File.Exists(_contentRootPath+_directoryPath+"/"+fileName)) {
+                return ReadFile(fileName);
+            }
+                return "[]"; //empty arrays for enabling json parsing and forEach function at frontend to not raise error 
         }
 
         public bool createNewCheckSheet(createCheckSheet dat){
@@ -99,7 +105,7 @@ namespace FileHandler {
         public string ReadFile(string fileName){
             int buffer=4096;
             FileStream fs= new FileStream(_directoryPath+"/"+fileName,
-                                        FileMode.OpenOrCreate,
+                                        FileMode.Open,
                                         FileAccess.Read,
                                         FileShare.ReadWrite,
                                         buffer, FileOptions.Asynchronous);

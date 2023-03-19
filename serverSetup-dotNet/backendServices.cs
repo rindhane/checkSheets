@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using App.Configurations;
 using Microsoft.Extensions.Hosting; // to access type hostoption; BackgroundServiceExceptionBehavior  
 using FileHandler;
+using Microsoft.AspNetCore.Hosting; //to access WebHostEnvironment interface;
 namespace BackendServices {
 
     public static class Services{
 
-        public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder, SystemConfigurations configs ){
+        public static WebApplicationBuilder AddServices(this WebApplicationBuilder builder, SystemConfigurations configs){
             //not to stop due to failure of background services
             builder.Services.Configure<HostOptions>(
                 hostOptions=>
@@ -26,7 +27,10 @@ namespace BackendServices {
                 });
             builder.Services.AddSingleton<runTimeConfiguration>();
             builder.Services.AddTransient<IFileHandler,ResultHandler>(
-                sp=>new ResultHandler(configs.storageDirectory));
+                sp=>{
+                    var webHostEnvironment = sp.GetRequiredService<IWebHostEnvironment>();
+                    return new ResultHandler(configs.storageDirectory, webHostEnvironment);
+                    });
             return builder;
         }
     }

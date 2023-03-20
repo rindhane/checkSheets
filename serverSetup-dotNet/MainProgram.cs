@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration; //to access the AddJsonfile extension
 using BackgroundHostingService; // to run the application as background service;
 using App.Routings; // to publish the routes to app
 using BackendServices; // to engage extension methods of AddServices
+using App.Middleware; // to add custom Middleware
 
 namespace WebService 
 {
@@ -41,7 +42,9 @@ namespace WebService
             //Attaching the working port
             app=app.AddListentingPort(); //from the Configuration Namespace
             // Enable to add custome MiddleWare in the processing pipelines 
-            //app.AddCustomMiddleware(); 
+            //app.AddCustomMiddleware();
+            //add webSocket 
+            app.AddWebSocketMiddleware(); 
             //enable CORS 
             app.UseCors();
             //enabled the serving staticfiles to fetch image/media files 

@@ -20,6 +20,7 @@ public static class Routes{
         app.MapGet("/InspectionEntry",RouteMethods.pageRedirectWithParams);
         app.MapPost("/GetCheckSheetData", RouteMethods.getCheckSheetData);
         app.MapPost("/saveAuthorCheckSheet",RouteMethods.saveCheckSheet);
+        app.MapPost("/formDataUpdate", RouteMethods.storeFormData);
         return app;
     }
 }  

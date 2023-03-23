@@ -53,6 +53,15 @@ namespace App.RouteBindings
       await context.Response.WriteAsync(result.ToString());
     }
 
+    public static async Task storeFormData(HttpContext context, HttpRequest request, IDataHandler formUpdateHandler){
+      //var data= new updateCheckSheet();
+      //string bodyString = httpHandlers.getRequestBody(request.Body);
+      //System.Console.WriteLine(bodyString);
+      var data = await context.Request.ReadFromJsonAsync<singleFormUpdate>();
+      var result = formUpdateHandler.updateFormData(data!);
+      await context.Response.WriteAsync(result.ToString());
+    }
+
     public static async Task test(HttpContext context, HttpRequest request, IFileHandler fileHandler){
       var data= new createCheckSheet();
       //string bodyString = httpHandlers.getRequestBody(request.Body);

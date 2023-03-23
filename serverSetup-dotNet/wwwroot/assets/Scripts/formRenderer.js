@@ -226,6 +226,7 @@ async function generateSection(itemSection)
             {
                 "typ":"name",
                 "descText":itemSection["descText"],
+                "dataTagIndicator":"station",
             }
         )
     )
@@ -268,6 +269,9 @@ function generateFieldElement(fieldTag){
     if(fieldTag["typ"]=="name"){
         const selfElem=produceElement("name");
         selfElem.innerHTML=fieldTag["descText"];
+        if(fieldTag["dataTagIndicator"]=="station") {
+            selfElem.setAttribute("data-detail-name","station");    
+        }
         return selfElem;
     }
     if(fieldTag["typ"]=="field"){
@@ -291,6 +295,32 @@ function generateInspectionClassification(classType){
     return elem;
 }
 
+function valueContainerDataTagAdd(valueContainer){
+    valueContainer.setAttribute("data-detail-input",null);
+    assignDataUpdateFunction(valueContainer);
+    return valueContainer;
+}
+
+function prepareParameterElement(inspectionContainer){
+    inspectionContainer.setAttribute("data-detail-name","operation");
+    return inspectionContainer;
+}
+
+async function assignDataUpdateFunction(valueContainer){
+    if(valueContainer.type=="text" || 
+        valueContainer.type=="number" || 
+        valueContainer.type=="select-multiple" )
+        {
+        valueContainer.setAttribute('oninput', "setInputUpdateOnParentDataTag(event,this);");
+    }
+    return valueContainer;
+} 
+
+async function setInputUpdateOnParentDataTag(event, elem){
+    elem.setAttribute("data-detail-input",elem.value);
+    return ;
+}
+
 function generateInspectionElement(fieldTag){
     const selfElem= produceElement("fieldSubSection");
     const classContainer=produceElement("classContainer");
@@ -298,16 +328,19 @@ function generateInspectionElement(fieldTag){
     classContainer.appendChild(generateInspectionClassification(fieldTag["inspectionClass"]));
     specificationContainer.appendChild(document.createTextNode(fieldTag["specDef"]));
     const inspectionContainer1= produceElement("inspectionContainer");
+    prepareParameterElement(inspectionContainer1);
     const inspectionContainer2=produceElement("inspectionContainer");
     if(fieldTag["fieldType"]=="text"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("textInput");
+        valueContainerDataTagAdd(valueContainer);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
     if(fieldTag["fieldType"]=="numerical"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("numerical");
+        valueContainerDataTagAdd(valueContainer);
         valueContainer.setAttribute("type","number");
         valueContainer.setAttribute("min", fieldTag["minCheck"]);
         valueContainer.setAttribute("max", fieldTag["maxCheck"]);
@@ -318,12 +351,14 @@ function generateInspectionElement(fieldTag){
     if(fieldTag["fieldType"]=="yesNoSelector"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("yesNoSelector");
+        valueContainerDataTagAdd(valueContainer);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
     if(fieldTag["fieldType"]=="multipleSelector"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("multipleSelector");
+        valueContainerDataTagAdd(valueContainer);
         const elemTemplate= document.getElementById("multipleSelector View subElement").innerHTML.slice();
         const name =AlphaNumeric(10);
         fieldTag["multipleOptions"].forEach(tag => {
@@ -342,6 +377,7 @@ function generateInspectionElement(fieldTag){
         let htmlResult=htmlTemplate.replace("moverVal=-1",`moverVal=${-parseFloat(fieldTag["addDecrement"])}`);
         htmlResult=htmlResult.replace("moverVal=1",`moverVal=${parseFloat(fieldTag["addIncrement"])}`);
         const valueContainer = htmlToElement(htmlResult);
+        valueContainerDataTagAdd(valueContainer);
         valueContainer.children[1].value= parseFloat(fieldTag["meanValue"]);//set the mean value;
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
@@ -354,6 +390,7 @@ function generateInspectionElement(fieldTag){
         imgElem.style="height:52px;width:52px; border: 2px outset black; cursor:pointer;";
         imgElem.setAttribute("onclick","displayPicOnModal(event,this)");
         const valueContainer=produceElement("textInput");
+        valueContainerDataTagAdd(valueContainer);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer1.appendChild(imgElem);
         inspectionContainer2.appendChild(valueContainer);
@@ -361,6 +398,7 @@ function generateInspectionElement(fieldTag){
     if (fieldTag["fieldType"]=="externalSourceField"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("textInput");
+        valueContainerDataTagAdd(valueContainer);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
@@ -422,9 +460,13 @@ async function populateForm(recordArray, formElem){
     if(provideTopFilterTruthy("$#header$#"))
     {
         formElem.appendChild(htmlToElement(formHeader.innerHTML));
+        if(authMode.active){
+            formElem.appendChild(sectionDividerElementAuthoring(-1,sectionDividerContainer.innerHTML));
+        };
     }
     for(let i=0; i<recordArray.length;i++)
     {
+        
         if(provideTopFilterTruthy(recordArray[i].descText)){
             formElem.appendChild(await generateSection(recordArray[i]));
             formElem.appendChild(sectionDividerElementAuthoring(i,sectionDividerContainer.innerHTML));
@@ -433,6 +475,7 @@ async function populateForm(recordArray, formElem){
     if(provideTopFilterTruthy("Rework")){
         formElem.appendChild(await generateReworkSection());
     }
+    formElem.appendChild(saveFormElement());
 }
 
 async function renderForm(){
@@ -442,12 +485,21 @@ async function renderForm(){
     await getCheckSheetJSONDataFromBackend();
     await populateOptionInTopFilter(defaultFilter=filter);
     populateForm(MasterArray,fieldContainerElement,);
+    populateHeader();
 }
 
 async function getCheckSheetJSONDataFromBackend(){
     const model = new URLSearchParams(window.location.search).get("model");
     const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
     await getCheckSheetData(model,checkSheetName);
+}
+function saveFormElement(){
+    const button = document.createElement("button");
+    button.classList.add("btn-primary");
+    button.style.margin='10px';
+    button.innerHTML="Save Inspection";
+    button.setAttribute('onclick',"saveFieldsForm(event, this);");
+    return button;
 }
 
 async function initiateChecklistPresenting(){
@@ -1233,7 +1285,7 @@ async function checkListHeaderGeneratedElement(){
         <div class="headerRow">
             <div class="headerRowItem">
                 <label for="ESN">Engine Serial Number</label>
-                <input class="headerInput" type="text" placeholder="ESN Details">
+                <input class="headerInput"  id="ESNInput" type="text" placeholder="ESN Details">
             </div>
             <div class="headerRowItem">
                 <label for="ESN">Model Number</label>
@@ -1253,6 +1305,10 @@ async function checkListHeaderGeneratedElement(){
     </div>
     `;
     return htmlToElement(htmlString);
+}
+async function populateHeader(){
+    const ESNInputValue = document.getElementById("ESNInput");
+    ESNInputValue.value=AlphaNumeric(8);
 }
 
 //communication with the backend
@@ -1412,4 +1468,51 @@ async function operatorLoginDetails(event,buttonElem){
     window.location.href=`/checkSheet?model=${model}&sheet=${checkSheet}&mode=operator&filter=${operation}`;
     renderForm();
     modalContainer.style.display='none';  
+}
+
+
+//checkSheet Save functions:
+async function saveFieldsForm(event, buttonElem){
+    const formContainer = buttonElem.parentElement;
+    const result = Array.from(formContainer.querySelectorAll("div.sectionContainer"))
+        .filter(
+                (sectionContainer)=>sectionContainer.getAttribute('data-index')!=null)
+        .map((sectionContainer)=>{
+            const stationName = sectionContainer.querySelector('div[data-detail-name="station"]').innerText;
+            const paramSets = new Array();
+            sectionContainer.querySelector("div.inspectionSubSection")
+                            .querySelectorAll("div.subSectionItem")
+                            .forEach(subSectionItem =>{
+                                const paramName = subSectionItem.querySelector('[data-detail-name="operation"]').innerText;
+                                const inputValue = subSectionItem.querySelector('[data-detail-input]').getAttribute("data-detail-input");
+                                paramSets.push({parameterName:paramName, inputValue:inputValue});
+                            });//closing for each 
+            //returning map values
+            return {stationName:stationName,valueSets:paramSets};
+        });
+    const ESN = document.getElementById("ESNInput").value;
+    const response = await postJsonData("/formDataUpdate",{ ESN:ESN , formUpdates:result},);
+    clearField(buttonElem);
+    populateHeader();
+    return result;
+} 
+
+async function clearField(buttonElem){
+    const formContainer = buttonElem.parentElement;
+    const result = Array.from(formContainer.querySelectorAll("div.sectionContainer"))
+        .filter(
+                (sectionContainer)=>sectionContainer.getAttribute('data-index')!=null)
+        .forEach((sectionContainer)=>{
+            const stationName = sectionContainer.querySelector('div[data-detail-name="station"]').innerText;
+            const paramSets = new Array();
+            sectionContainer.querySelector("div.inspectionSubSection")
+                            .querySelectorAll("div.subSectionItem")
+                            .forEach(subSectionItem =>{
+                                const paramName = subSectionItem.querySelector('[data-detail-name="operation"]').innerText;
+                                subSectionItem.querySelector('[data-detail-input]').value="";
+                            });//closing forEach on fields
+        //closing forEach on sectionContainers; 
+        });
+    return result;
+
 }

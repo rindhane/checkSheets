@@ -17,6 +17,7 @@ namespace App.Configurations
 
         public string jwt_url {get;}
         public string storageDirectory{get;}
+        public string dataDirectory{get;}
 
 
         public SystemConfigurations () 
@@ -28,6 +29,7 @@ namespace App.Configurations
             storageDirectory="checkSheetsData";
             configFile = "ServerConfig.json";
             resultFile = "result.dat";
+            dataDirectory = "dataFromOperation";
             dataFile="DataStorage/data.json";
             qdasConfig=System.AppDomain.CurrentDomain.BaseDirectory+"QdasConfig.toml"; // BaseDirectory usage become essential during running webservice as window's background service 
             //read about in the ref here : 

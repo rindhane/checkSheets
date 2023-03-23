@@ -31,6 +31,11 @@ namespace BackendServices {
                     var webHostEnvironment = sp.GetRequiredService<IWebHostEnvironment>();
                     return new ResultHandler(configs.storageDirectory, webHostEnvironment);
                     });
+            builder.Services.AddTransient< IDataHandler, FormDataHandler>(
+                sp=>{
+                    var webHostEnvironment = sp.GetRequiredService<IWebHostEnvironment>();
+                    return new FormDataHandler(configs.dataDirectory, webHostEnvironment);
+                    });
             return builder;
         }
     }

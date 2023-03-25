@@ -733,7 +733,7 @@ function setDepthvalue(elem, depths, type, value){
    const inputElement=parentElem.querySelector(type);
    if (inputElement.type=="radio")
    {
-    inputElement.checked=true;
+    inputElement.checked=value;
     return true;
    }
    inputElement.value=value;
@@ -796,12 +796,14 @@ async function fillValuesToPopulatedElementDom(elem,JsonObj)
              JsonObj["maxCheck"]!=null)
             {
                 setDepthvalue(elem,[2],'input[data-field-input="check"]', true);
+                setDepthvalue(elem,[2],'input[value="no"]', false);
                 setDepthvalue(elem,[2],'input[data-field-input="answer"]',JsonObj["maxCheck"]);  
             }
         if ( //lsl setting
              JsonObj["minCheck"]!=null)
             {
                 setDepthvalue(elem,[3],'input[data-field-input="check"]', true);
+                setDepthvalue(elem,[3],'input[value="no"]', false);
                 setDepthvalue(elem,[3],'input[data-field-input="answer"]',JsonObj["minCheck"]);  
             }
         setDepthvalue(elem,[4],'input[data-field-input="answer"]',JsonObj["specDef"]);

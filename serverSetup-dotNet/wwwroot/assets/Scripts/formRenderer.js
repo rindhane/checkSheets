@@ -475,7 +475,9 @@ async function populateForm(recordArray, formElem){
     if(provideTopFilterTruthy("Rework")){
         formElem.appendChild(await generateReworkSection());
     }
-    formElem.appendChild(saveFormElement());
+    if(mode = new URLSearchParams(window.location.search).get("mode")!="author") {
+        formElem.appendChild(saveFormElement());
+    }
 }
 
 async function renderForm(){
@@ -570,9 +572,10 @@ function addNameFieldToRadioSet(htmlString, length=9)
     const identifier3 = "$$classificationCategory$$";
     const name1 = AlphaNumeric(length);
     const name2 = AlphaNumeric(length);
+    const name3 = AlphaNumeric(length);
     htmlString= htmlString.replaceAll(identifier1,name1);
     htmlString= htmlString.replaceAll(identifier2,name2);
-    htmlString =htmlString.replaceAll(identifier3,name1);
+    htmlString =htmlString.replaceAll(identifier3,name3);
     return htmlString;
 }
 
@@ -790,13 +793,13 @@ async function fillValuesToPopulatedElementDom(elem,JsonObj)
         setDepthvalue(elem,[0],'input[data-field-input="answer"]',JsonObj["descText"]);
         setDepthvalue(elem,[1],'input[data-field-input="answer"]',JsonObj["meanValue"]);
         if ( //usl setting
-            getDepthvalue(elem,[2],'input[data-field-input="check"]')!=null)
+             JsonObj["maxCheck"]!=null)
             {
                 setDepthvalue(elem,[2],'input[data-field-input="check"]', true);
                 setDepthvalue(elem,[2],'input[data-field-input="answer"]',JsonObj["maxCheck"]);  
             }
         if ( //lsl setting
-            getDepthvalue(elem,[3],'input[data-field-input="check"]')!=null)
+             JsonObj["minCheck"]!=null)
             {
                 setDepthvalue(elem,[3],'input[data-field-input="check"]', true);
                 setDepthvalue(elem,[3],'input[data-field-input="answer"]',JsonObj["minCheck"]);  

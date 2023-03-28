@@ -28,11 +28,13 @@ namespace DbConnectors {
         //https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#simple-dbcontext-initialization-with-new
         public DbSet<Checksheet_Record>? Checksheet_Record{get; set;}
         public DbSet<Checksheet_Station>? Checksheet_Stations{get; set;}
+        public DbSet<Checksheet_Field>? Checksheet_Fields{get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
             //refer : https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro?view=aspnetcore-7.0#create-the-database-context
             modelBuilder.Entity<Checksheet_Record>().ToTable("CHECKSHEET_RECORD");
             modelBuilder.Entity<Checksheet_Station>().ToTable("CHECKSHEET_STATIONS");
+            modelBuilder.Entity<Checksheet_Station>().ToTable("CHECKSHEET_Fields");
             
         }
 

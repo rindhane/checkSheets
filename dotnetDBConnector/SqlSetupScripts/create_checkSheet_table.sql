@@ -19,6 +19,8 @@ set @query= 'CREATE TABLE '+ QUOTENAME(@qdas_db)+'.dbo.CHECKSHEET_STATIONS(
   sectorName      VARCHAR(max)  NOT NULL,
   formID          INT           NOT NULL,
   sequenceOrder   INT           NOT NULL,
-)';
+  UID             UniqueIdentifier NOT NULL,
+)'; --Refer: [UniqueIdentifier] https://stackoverflow.com/questions/11974939/adding-a-uniqueidentifier-column-and-adding-the-default-to-generate-new-guid
+    -- https://www.sqlshack.com/understanding-the-guid-data-type-in-sql-server/
 EXEC sp_executesql @query;
 GO

@@ -47,10 +47,10 @@ namespace DbConnectors
                             NullValueHandling = NullValueHandling.Ignore
                         };
             var result = JsonConvert.DeserializeObject<List<section>>(content, jsonSettings);
-            var answer = result!.Select(section=>section).ToList(); 
-            foreach(var item in answer){
-                System.Console.WriteLine(item.UID);
-            }
+            foreach (var section in result!){
+                var station = (Checksheet_Station) section;
+                //station
+            }            
         }
 
         public static void Main(string[] args){

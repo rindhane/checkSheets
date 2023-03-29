@@ -176,7 +176,7 @@ public class Checksheet_Field : System.IEquatable<Checksheet_Field> {
     public string? dataSource {get;set;}
     public string? sourceField {get;set;}
     public string? imageData {get;set;}
-    public string? valueData {get;set;}
+    //public string? valueData {get;set;}
 
         //equality functions
     public bool Equals(Checksheet_Field ? other )

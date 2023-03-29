@@ -14,9 +14,18 @@ namespace DbConnectors.Models {
         public string? typ {get;set;}
         public int index {get;set;}
         public string? fieldType {get;set;}
-        public string? UID {get;set;}
+        public System.Guid UID {get;set;}
         public List<field>? childs {get;set;}
-
+        public static implicit operator Checksheet_Station(section example) => new Checksheet_Station{ 
+            sectorName=example.descText,
+            UID = example.UID,
+            sequenceOrder = example.index, 
+        };
+        public static explicit operator section(Checksheet_Station example) => new section{ 
+            descText = example.sectorName,
+            UID=example.UID,
+            index= example.sequenceOrder,
+        };
     }
     public class field {
         public System.Guid UID {get; set;}
@@ -76,7 +85,7 @@ namespace DbConnectors.Models {
             dataSource = example.dataSource,
             sourceField = example.sourceField,
             imageData = example.imageData,
-            valueData = example.valueData,
+            //valueData = example.valueData,
         };
         public static explicit operator field(Checksheet_Field example) => new field(){
             UID=example.UID,
@@ -93,7 +102,7 @@ namespace DbConnectors.Models {
             dataSource = example.dataSource,
             sourceField = example.sourceField,
             imageData = example.imageData,
-            valueData = example.valueData,
+            //valueData = example.valueData,
         };
         
     }

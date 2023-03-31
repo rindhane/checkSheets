@@ -16,7 +16,7 @@
           "LogName": "Application",
           "LogLevel": {
             "Microsoft": "Trace",
-            "Microsoft.Hosting.Lifetime": "Trace"
+            "Microsoft.Hosting.Lifetime": "Tracee"
           }
         }
       }

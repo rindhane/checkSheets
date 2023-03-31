@@ -32,7 +32,7 @@ namespace WebService
                 });
             });
             */
-            //getting the builder ready;
+            //getting the builder ready;w
                 //Adding Services
                 builder.AddServices(appConfigs);
                 //builder.Configuration

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backendServerApp", "serverSetup-dotNet\backendServerApp.csproj", "{9DECF31A-8312-4D02-95D1-4006C932A4D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTMinimalAPI", "..\..\Pushparaj_Bhokare\Demo_Projects\JWTMinimalAPI\JWTMinimalAPI\JWTMinimalAPI.csproj", "{B56E95D9-4A9F-40DA-AB65-C68C55A91B58}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DECF31A-8312-4D02-95D1-4006C932A4D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DECF31A-8312-4D02-95D1-4006C932A4D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DECF31A-8312-4D02-95D1-4006C932A4D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DECF31A-8312-4D02-95D1-4006C932A4D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B56E95D9-4A9F-40DA-AB65-C68C55A91B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B56E95D9-4A9F-40DA-AB65-C68C55A91B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B56E95D9-4A9F-40DA-AB65-C68C55A91B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B56E95D9-4A9F-40DA-AB65-C68C55A91B58}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C33F5335-B0A3-4709-B5AD-5C06F859ECBC}
+	EndGlobalSection
+EndGlobal

@@ -41,7 +41,15 @@
 <script>
   async function doTrialRouting(event,elem){
     event.preventDefault();
-    window.location.href='/admin'
+    var formElement= document.forms.signInForm;
+    var formData = new FormData(formElement);
+    if(formData.get('email')=="admin" && formData.get("password")=="admin"){
+      window.location.href='/admin';
+    }
+    else{
+      window.confirm("Please provide right login details");
+    }
+    
   }
 </script>
 </html>

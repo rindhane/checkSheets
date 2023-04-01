@@ -34,7 +34,7 @@ namespace FileHandler {
         private string _directoryPath ;
         private string _contentRootPath; 
         public ResultHandler(string path, IWebHostEnvironment webHostEnvironement) {
-           _contentRootPath =webHostEnvironement.ContentRootPath;
+           _contentRootPath = webHostEnvironement.ContentRootPath;
             _directoryPath = path;
             //_path = System.Environment.GetEnvironmentVariable("logFile");
         }
@@ -48,12 +48,13 @@ namespace FileHandler {
 
         public List<checkSheet> getCheckSheetUserData(){
             var result = new List<checkSheet>();
-            string[] dirs = Directory.GetDirectories(_directoryPath);
+            var dirPath = _contentRootPath+_directoryPath; //complete directory path
+            string[] dirs = Directory.GetDirectories(dirPath);
             string[] files = new string[0] ;
-            dirs = cleanAdditionalPath(dirs, _directoryPath+"\\");
+            dirs = cleanAdditionalPath(dirs, dirPath+"\\");
             for (int i=0;i<dirs.Length;i++){ //looking into each directory
-                files = Directory.GetFiles(_directoryPath+"/"+dirs[i]);
-                files= cleanAdditionalPath(files,_directoryPath+"/"+dirs[i]+"\\");
+                files = Directory.GetFiles(dirPath+"/"+dirs[i]);
+                files= cleanAdditionalPath(files,dirPath+"/"+dirs[i]+"\\");
                 files = cleanAdditionalPath(files,".json");
                 for (int j=0; j<files.Length; j++){ // obtaining each file withing current directory
                     var temp = new checkSheet{
@@ -91,7 +92,7 @@ namespace FileHandler {
         }
         public void writeFile(string fileName, string content) {
             int buffer=4096;
-            FileStream fs= new FileStream(_directoryPath+"/"+fileName,
+            FileStream fs= new FileStream(_contentRootPath+_directoryPath+"/"+fileName,
                                         FileMode.Create,
                                         FileAccess.Write,
                                         FileShare.ReadWrite,
@@ -104,7 +105,7 @@ namespace FileHandler {
 
         public string ReadFile(string fileName){
             int buffer=4096;
-            FileStream fs= new FileStream(_directoryPath+"/"+fileName,
+            FileStream fs= new FileStream(_contentRootPath+_directoryPath+"/"+fileName,
                                         FileMode.Open,
                                         FileAccess.Read,
                                         FileShare.ReadWrite,

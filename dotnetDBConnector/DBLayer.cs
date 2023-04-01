@@ -3,26 +3,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;// to use List type
 using Microsoft.EntityFrameworkCore;
+using System.Collections; // to access DictionaryEntry
 
 namespace DbConnectors {
     public class DbLayer{
-        DbEFContext dbEntity ;
+        public DbEFContext dbEntity ;
         public DbLayer( dbOptions opt){
             dbEntity = new DbEFContext(opt);
+            dbEntity.SaveChangesFailed+=SaveChangesFailureEvent;//correctionPending
         }
-        public async Task<int> createNewSheet(Checksheet_Record newSheet, bool existing, int id = -1){
-            var entry = dbEntity.Checksheet_Record!.Add(newSheet);
+        public async Task<int> createNewSheet(Checksheet_Record newSheet, bool existing, int ExistingSheetId = -1){
+            _ = dbEntity.Checksheet_Record!.Add(newSheet);
             dbEntity.SaveChanges(); // to receive newSheet.id
             if (existing) {
                 //var oldCheckSheet = dbEntity.Checksheet_Record!.Where(record=>record.id==id).First();
                 dbEntity.Checksheet_Stations!
                                .Include(station=>station.fields) 
                                .AsParallel()
-                               .Where(station=>station.formID! == new Checksheet_Record(){id=id})
+                               .Where(station=>station.form! == new Checksheet_Record(){id=ExistingSheetId})
                                .ForAll(station=>{
                                     var newStation = new Checksheet_Station(){
                                     sectorName= station.sectorName,
-                                    formID= newSheet, 
+                                    form= newSheet, 
                                     sequenceOrder=station.sequenceOrder,
                                     UID= System.Guid.NewGuid()
                                     };
@@ -49,23 +51,66 @@ namespace DbConnectors {
             return dbEntity.SaveChanges();
         }
 
+        public async Task<Checksheet_Record> getCheckSheetCopy(int formId){
+            /*
+            var stations = dbEntity.Checksheet_Stations!.
+                     Include(station=>station.fields)
+                     .Where(station=>station.formFK==formId)
+                     .Select(station=>station).ToList();
+            */
+            await dbEntity.Checksheet_Record!
+                            .Include(sheet=>sheet.stations)
+                            .Where(sheet=>sheet.id==formId)
+                            .Select(record=>new Checksheet_Record{
+                                model=record.model,
+                                id=record.id,
+                                sheetName=record.sheetName,
+                                stations=record.stations,
+                            }).ForEachAsync(sheet=>{
+                                //sheet.stations. // correctionPending: To Complete
+                            });
+                            /*
+                            .Select(sheet=>new Checksheet_Record{
+                                model=sheet.model,
+                                id=sheet.id,
+                                status= sheet.status,
+                                sheetName=sheet.sheetName,
+                            }).FirstOrDefault();
+                            */
+            //stationData!.stations=stations;
+            await Task.Delay(0);
+            //return stationData!;
+            return new Checksheet_Record();
+        }
         public async Task UpdateAuthoredSheet(List<Checksheet_Station> sheetStations , int formID ) {
-            
             var stationListInDB = dbEntity.Checksheet_Stations!
                                         .Include(station=>station.fields)
                                         .Where(station=>station == new Checksheet_Station(){
-                                                                    formID = new Checksheet_Record(){id=formID}}
+                                                                    form = new Checksheet_Record(){id=formID}}
                                         );
-            _ = addNewSections(sheetStations.Except(stationListInDB)); //action on new stations
-            _ = deleteStations(stationListInDB.Except(sheetStations));//action on deleted Stations
+            var tasks = new List<Task>(); // to collect all the task 
+            if(stationListInDB.Count()>0){
+                System.Console.WriteLine("this route was taken");
+            tasks.Add(addNewSections(sheetStations.Except(stationListInDB))); //action on new stations
+            tasks.Add(deleteStations(stationListInDB.Except(sheetStations)));//action on deleted Stations
             var modStations = stationListInDB.Intersect(sheetStations);
-            _ = updateSections(modStations, sheetStations);
-            await Task.Delay(0);
+            tasks.Add(updateSections(modStations, sheetStations));
+            Task.WhenAll(tasks).Wait(); 
+            dbEntity.SaveChanges();
+            return ;   
+            }
+            await addNewSections(sheetStations);
+            dbEntity.SaveChanges();
             return ;
         }
-        public async Task addNewSections(IEnumerable<Checksheet_Station> newStations ) {
-            dbEntity.Checksheet_Stations!.AddRange(newStations); //assuming fields are getting automatically updated
-            _ = dbEntity.SaveChangesAsync();
+        public async Task addNewSections(IEnumerable<Checksheet_Station> newStations ) 
+        {
+            dbEntity.Checksheet_Stations!.AddRange(newStations);
+            newStations
+            .AsParallel()
+            .ForAll(station=>{
+                dbEntity.AddRange(station.fields!);
+            }); 
             await Task.Delay(0);
             return ; 
         }
@@ -80,7 +125,7 @@ namespace DbConnectors {
                 stationSet.TryGetValue(station, out newValStation);
                 station.sectorName = newValStation!.sectorName ;
                 station.sequenceOrder = newValStation.sequenceOrder;
-                dbEntity.SaveChangesAsync();
+                //dbEntity.SaveChangesAsync(); //not required
                 _ = updateFields(station, newValStation.fields!);
             });
             await Task.Delay(0);
@@ -124,7 +169,7 @@ namespace DbConnectors {
                         .SetProperty(f=>f.sourceField, x=>newField.sourceField)
                         .SetProperty(f=>f.imageData, x=>newField.imageData)
                         );
-                        _ = dbEntity.SaveChangesAsync();
+                        //_ = dbEntity.SaveChangesAsync();
             await Task.Delay(0);
             return ;
         }
@@ -139,7 +184,7 @@ namespace DbConnectors {
                         var tempField = new Checksheet_Field();
                         if(!fieldSet.TryGetValue(fieldInDB, out tempField)){
                             dbEntity.Remove(fieldInDB);
-                            dbEntity.SaveChanges();
+                            //dbEntity.SaveChanges();
                         }
                     });
             await Task.Delay(0);
@@ -149,15 +194,24 @@ namespace DbConnectors {
         public async Task deleteStations(IEnumerable<Checksheet_Station> delStations){
             delStations.AsParallel()
                     .ForAll(station=>{
-                        dbEntity.RemoveRange(station.fields!);
-                        dbEntity.SaveChangesAsync();
+                        //dbEntity.RemoveRange(station.fields!); //correctionPending see if fields are required
                         dbEntity.Remove(station);
-                        dbEntity.SaveChangesAsync();
                     }
             );
             await Task.Delay(0);
             return ;
         }
-           
+
+        public void SaveChangesFailureEvent(object? sender, SaveChangesFailedEventArgs e){
+            System.Console.WriteLine(e.Exception.Message);
+            System.Console.WriteLine(e.Exception.InnerException!.Message);
+            System.Console.WriteLine("error in saving");
+            foreach (DictionaryEntry handle in e.Exception.InnerException.Data){
+                System.Console.WriteLine($"key:{handle.Key}| Item: {handle.Value} ");
+            }
+            foreach (var key in e.Exception.Data){
+                System.Console.WriteLine($"key:{key}| Item: {e.Exception.Data[key]} ");
+            }
+        }
     }
 }

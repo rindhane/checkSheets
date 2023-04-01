@@ -1,9 +1,11 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema; // to access database generated option 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations; // to access Key Attribute
 
 namespace DbConnectors.Models {
 
 public class Checksheet_Record : System.IEquatable<Checksheet_Record>{
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int id {get; set;}
     public string? sheetName {get; set;}
@@ -80,12 +82,18 @@ public enum sheetStatus{
 }
 
 public class Checksheet_Station : System.IEquatable<Checksheet_Station>{
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int id {get; set;}
+    
+    //public int id {get; set;}
     public string? sectorName {get; set;}
-    public Checksheet_Record? formID {get; set;}
+    public Checksheet_Record? form {get; set;}
+    [ForeignKey("form")]
+    public int formFK {get; set;}
     public int sequenceOrder {get;set;}
+    
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public System.Guid UID {get;set;}
+    
     public ICollection<Checksheet_Field>? fields {get;set;}
 
     //equality functions
@@ -106,11 +114,12 @@ public class Checksheet_Station : System.IEquatable<Checksheet_Station>{
         if (sheet1 == null || sheet2 == null) {
             return false;
         } */
+        /*
         if (other.id == id)
         {
             return true;
         }
-
+        */
         if (UID.Equals(other.UID)){
             return true;
         }
@@ -156,9 +165,13 @@ public class Checksheet_Station : System.IEquatable<Checksheet_Station>{
 
 public class Checksheet_Field : System.IEquatable<Checksheet_Field> {
         
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public System.Guid UID {get;set;}
     public Checksheet_Station? station {get; set;}
+
+    [ForeignKey("station")]
+    public System.Guid stationID{get;set;}
     public int sequenceOrder {get;set;}
     public string? descText {get; set;}
     public string? typ {get;set;}

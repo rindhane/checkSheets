@@ -19,7 +19,8 @@ namespace DbConnectors.Models {
         public static implicit operator Checksheet_Station(section example) => new Checksheet_Station{ 
             sectorName=example.descText,
             UID = example.UID,
-            sequenceOrder = example.index, 
+            sequenceOrder = example.index,
+            //formID= new Checksheet_Record(), 
         };
         public static explicit operator section(Checksheet_Station example) => new section{ 
             descText = example.sectorName,

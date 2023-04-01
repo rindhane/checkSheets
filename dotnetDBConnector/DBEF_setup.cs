@@ -34,7 +34,7 @@ namespace DbConnectors {
             //refer : https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro?view=aspnetcore-7.0#create-the-database-context
             modelBuilder.Entity<Checksheet_Record>().ToTable("CHECKSHEET_RECORD");
             modelBuilder.Entity<Checksheet_Station>().ToTable("CHECKSHEET_STATIONS");
-            modelBuilder.Entity<Checksheet_Station>().ToTable("CHECKSHEET_FIELDS");
+            modelBuilder.Entity<Checksheet_Field>().ToTable("CHECKSHEET_FIELDS");
             
         }
 

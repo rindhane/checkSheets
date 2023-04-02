@@ -11,7 +11,8 @@ public class Checksheet_Record : System.IEquatable<Checksheet_Record>{
     public string? sheetName {get; set;}
     public string? model {get; set;}
     public string? status {get;set;}
-    public ICollection<Checksheet_Station>? stations {get; set;}
+    //public ICollection<Checksheet_Station>? stations {get; set;}
+    public List<Checksheet_Station>? stations {get; set;}
     
     
     //equality functions
@@ -94,7 +95,7 @@ public class Checksheet_Station : System.IEquatable<Checksheet_Station>{
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public System.Guid UID {get;set;}
     
-    public ICollection<Checksheet_Field>? fields {get;set;}
+    public List<Checksheet_Field>? fields {get;set;}
 
     //equality functions
     public bool Equals(Checksheet_Station? other )

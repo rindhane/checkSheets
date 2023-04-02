@@ -8,6 +8,22 @@ namespace DbConnectors.Models {
         public string? model {get;set;}
         public string? sheetName {get;set;}
         public List<section>? sheetArray {get;set;}
+        public int sheetID {get;set;}
+
+        public static implicit operator Checksheet_Record(CheckSheet example)=> new Checksheet_Record{
+                sheetName = example.sheetName,
+                stations= section.convertListOfSectionsToStations(example.sheetArray!),
+                id=example.sheetID,
+                model=example.model, 
+        };
+        
+        public static explicit operator CheckSheet(Checksheet_Record example)=> new CheckSheet{
+                sheetName = example.sheetName,
+                sheetArray= section.convertListOfStationsToSections(example.stations!),
+                sheetID=example.id,
+                model=example.model,
+        };
+    
     }
     public class section {
         public string? descText {get; set;}
@@ -20,13 +36,29 @@ namespace DbConnectors.Models {
             sectorName=example.descText,
             UID = example.UID,
             sequenceOrder = example.index,
+            fields = field.convertListOfFieldsToDbFields(example.childs!),
             //formID= new Checksheet_Record(), 
         };
         public static explicit operator section(Checksheet_Station example) => new section{ 
             descText = example.sectorName,
             UID=example.UID,
             index= example.sequenceOrder,
+            childs=field.convertListOfDbFieldsToFields(example.fields !=null ? example.fields : new List<Checksheet_Field>()),
         };
+        public static List<Checksheet_Station> convertListOfSectionsToStations(List<section> input){
+            var result = new List<Checksheet_Station>();
+            foreach(var item in input){
+                result.Add((Checksheet_Station)item);
+            }
+            return result;
+        }
+        public static List<section> convertListOfStationsToSections(List<Checksheet_Station> input){
+            var result = new List<section>();
+            foreach(var item in input){
+                result.Add((section)item);
+            }
+            return result;
+        }
     }
     public class field {
         public System.Guid UID {get; set;}
@@ -106,6 +138,21 @@ namespace DbConnectors.Models {
             //valueData = example.valueData,
         };
         
+        public static List<Checksheet_Field> convertListOfFieldsToDbFields(List<field> input){
+            var result = new List<Checksheet_Field>();
+            foreach(var item in input){
+                result.Add((Checksheet_Field)item);
+            }
+            return result;
+        }
+        public static List<field> convertListOfDbFieldsToFields(List<Checksheet_Field> input){
+            var result = new List<field>();
+            foreach(var item in input){
+                System.Console.WriteLine(item);
+                result.Add((field)item);
+            }
+            return result;
+        }
     }
 
     public enum inspectionClass{

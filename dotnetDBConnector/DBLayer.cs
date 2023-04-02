@@ -52,35 +52,19 @@ namespace DbConnectors {
         }
 
         public async Task<Checksheet_Record> getCheckSheetCopy(int formId){
-            /*
             var stations = dbEntity.Checksheet_Stations!.
-                     Include(station=>station.fields)
-                     .Where(station=>station.formFK==formId)
-                     .Select(station=>station).ToList();
-            */
-            await dbEntity.Checksheet_Record!
+                        Include(station=>station.fields)
+                        .Where(station=>station.formFK==formId)
+                        .Select(station=>station)
+                        .ToList();
+            var record= dbEntity.Checksheet_Record!
                             .Include(sheet=>sheet.stations)
                             .Where(sheet=>sheet.id==formId)
-                            .Select(record=>new Checksheet_Record{
-                                model=record.model,
-                                id=record.id,
-                                sheetName=record.sheetName,
-                                stations=record.stations,
-                            }).ForEachAsync(sheet=>{
-                                //sheet.stations. // correctionPending: To Complete
-                            });
-                            /*
-                            .Select(sheet=>new Checksheet_Record{
-                                model=sheet.model,
-                                id=sheet.id,
-                                status= sheet.status,
-                                sheetName=sheet.sheetName,
-                            }).FirstOrDefault();
-                            */
-            //stationData!.stations=stations;
+                            .Select(record=>record
+                            ).First();
+            //record.stations=stations; //why this is unnecessary ? 
             await Task.Delay(0);
-            //return stationData!;
-            return new Checksheet_Record();
+            return record;
         }
         public async Task UpdateAuthoredSheet(List<Checksheet_Station> sheetStations , int formID ) {
             var stationListInDB = dbEntity.Checksheet_Stations!

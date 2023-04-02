@@ -74,7 +74,8 @@ namespace DbConnectors
         public static void testCheckSheetRetrieval(dbOptions opt,int formId){
             var db = new DbLayer(opt);
             var result = db.getCheckSheetCopy(formId).GetAwaiter().GetResult();
-            var stringResult = JsonConvert.SerializeObject(result);
+            var answer = (CheckSheet)result;
+            var stringResult = JsonConvert.SerializeObject(answer);
             System.Console.WriteLine(stringResult);
         }
 
@@ -85,7 +86,7 @@ namespace DbConnectors
                 password = "qdas1234",     
                 dbName="QDAS_VALUE_DATABASE"
         }; 
-            testCheckSheetRetrieval(opt,20);
+            testCheckSheetRetrieval(opt,29);
             //testCheckSheetSave(opt, 1);
             //testDataInitializer(opt);
             //TestDbConnection(opt);

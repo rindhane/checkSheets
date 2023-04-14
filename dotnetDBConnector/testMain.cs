@@ -1,5 +1,5 @@
 using DbConnectors.Models;
-using FileHandler;
+using ReaderHandler;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +71,24 @@ namespace DbConnectors
             }
             _ = db.UpdateAuthoredSheet(inputSheet, sheetTest.id);          
         }
+        
+        public static void updateCheckSheet(dbOptions opt, int formID){
+            var db = new DbLayer(opt);
+            var reader = new ResultHandler(path:"testData");
+            var content = reader.ReadFile("newTest.json");
+            var jsonSettings = new JsonSerializerSettings
+                        { //ref : https://stackoverflow.com/questions/31813055/how-to-handle-null-empty-values-in-jsonconvert-deserializeobject
+                            //MissingMemberHandling = MissingMemberHandling.Ignore,
+                            NullValueHandling = NullValueHandling.Ignore
+                        };
+            var result = JsonConvert.DeserializeObject<List<section>>(content, jsonSettings);
+            var inputSheet = new CheckSheet();
+            inputSheet.sheetID=formID;
+            inputSheet.sheetArray=result;
+            var record = (Checksheet_Record) inputSheet;
+            db.UpdateAuthoredSheet(record.stations!, 18).GetAwaiter().GetResult();
+
+        }
         public static void testCheckSheetRetrieval(dbOptions opt,int formId){
             var db = new DbLayer(opt);
             var result = db.getCheckSheetCopy(formId).GetAwaiter().GetResult();
@@ -78,15 +96,25 @@ namespace DbConnectors
             var stringResult = JsonConvert.SerializeObject(answer);
             System.Console.WriteLine(stringResult);
         }
+        public static void getAllCheckSheet(dbOptions opt){
+            var db = new DbLayer(opt);
+            var result = db.allUserCheckSheets().GetAwaiter().GetResult();
+            var stringResult = JsonConvert.SerializeObject(result);
+            System.Console.WriteLine(stringResult);
+        }
 
         public static void Main(string[] args){
             dbOptions opt = new dbOptions {
-                dataSource = "127.0.0.1",  
-                userID = "qdas",            
-                password = "qdas1234",     
-                dbName="QDAS_VALUE_DATABASE"
+                dataSource = "<host name>,<TCP/IP port number>",
+                userID = "server_id",            
+                password = "serverPassword",     
+                dbName="db_name"
         }; 
-            testCheckSheetRetrieval(opt,29);
+            var test = new System.Guid("de9343c4-7465-42ef-a45b-a2d5195f3b19");
+            updateCheckSheet(opt,18);
+            //System.Console.WriteLine(test);
+            //getAllCheckSheet(opt);
+            //testCheckSheetRetrieval(opt,29);
             //testCheckSheetSave(opt, 1);
             //testDataInitializer(opt);
             //TestDbConnection(opt);

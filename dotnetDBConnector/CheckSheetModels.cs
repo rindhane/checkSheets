@@ -9,12 +9,14 @@ namespace DbConnectors.Models {
         public string? sheetName {get;set;}
         public List<section>? sheetArray {get;set;}
         public int sheetID {get;set;}
+        public string? status {get;set;}
 
         public static implicit operator Checksheet_Record(CheckSheet example)=> new Checksheet_Record{
                 sheetName = example.sheetName,
                 stations= section.convertListOfSectionsToStations(example.sheetArray!),
                 id=example.sheetID,
-                model=example.model, 
+                model=example.model,
+                //status=example.status, // not transfering the status since it should be assigned through the specific api not from data 
         };
         
         public static explicit operator CheckSheet(Checksheet_Record example)=> new CheckSheet{
@@ -22,6 +24,7 @@ namespace DbConnectors.Models {
                 sheetArray= section.convertListOfStationsToSections(example.stations!),
                 sheetID=example.id,
                 model=example.model,
+                status=example.status,
         };
     
     }
@@ -53,12 +56,15 @@ namespace DbConnectors.Models {
             return result;
         }
         public static List<section> convertListOfStationsToSections(List<Checksheet_Station> input){
-            var result = new List<section>();
+            if (input!=null) {
+                var result = new List<section>();
             foreach(var item in input){
                 result.Add((section)item);
             }
             return result;
-        }
+            }
+            return new List<section>();
+        } 
     }
     public class field {
         public System.Guid UID {get; set;}
@@ -66,7 +72,8 @@ namespace DbConnectors.Models {
         public string? typ {get;set;}
         public string? fieldType {get;set;}
         
-        public inspectionClass inspectionClass{get;set;}
+        public string? inspectionClass{get;set;}
+        //public inspectionClass inspectionClass{get;set;}
         public string? specDef{get;set;}
         public float meanValue {get;set;}
         public float maxCheck {get;set;} 
@@ -106,8 +113,9 @@ namespace DbConnectors.Models {
         public static implicit operator Checksheet_Field(field example) => new Checksheet_Field(){
             UID=example.UID,
             descText =example.descText,  
-            fieldType = example.fieldType, 
-            inspectionClass = example.inspectionClass, 
+            typ = example.fieldType, 
+            fieldType = example.fieldType,
+            inspectionClass =  System.Enum.Parse<Models.inspectionClass>(example.inspectionClass!), 
             specDef =example.specDef, 
             meanValue = example.meanValue, 
             maxCheck= example.maxCheck, 
@@ -123,8 +131,9 @@ namespace DbConnectors.Models {
         public static explicit operator field(Checksheet_Field example) => new field(){
             UID=example.UID,
             descText =example.descText,  
-            fieldType = example.fieldType, 
-            inspectionClass = example.inspectionClass, 
+            typ = example.typ, 
+            fieldType = example.fieldType,
+            inspectionClass = example.inspectionClass.ToString(), 
             specDef =example.specDef, 
             meanValue = example.meanValue, 
             maxCheck= example.maxCheck, 
@@ -148,7 +157,6 @@ namespace DbConnectors.Models {
         public static List<field> convertListOfDbFieldsToFields(List<Checksheet_Field> input){
             var result = new List<field>();
             foreach(var item in input){
-                System.Console.WriteLine(item);
                 result.Add((field)item);
             }
             return result;

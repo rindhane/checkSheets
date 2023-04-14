@@ -4,6 +4,7 @@ using App.Configurations;
 using Microsoft.Extensions.Hosting; // to access type hostoption; BackgroundServiceExceptionBehavior  
 using FileHandler;
 using Microsoft.AspNetCore.Hosting; //to access WebHostEnvironment interface;
+using DbConnectors;
 namespace BackendServices {
 
     public static class Services{
@@ -36,6 +37,15 @@ namespace BackendServices {
                     var webHostEnvironment = sp.GetRequiredService<IWebHostEnvironment>();
                     return new FormDataHandler(configs.dataDirectory, webHostEnvironment);
                     });
+            builder.Services.AddScoped<DbLayer>(sp=>{
+                var opt = new dbOptions { //correctionPending
+                dataSource = "<host name>,<TCP/IP port number>",
+                userID = "server_id",            
+                password = "serverPassword",     
+                dbName="db_name"
+                    }; 
+                return new DbLayer(opt);
+            });
             return builder;
         }
     }

@@ -51,6 +51,15 @@ namespace DbConnectors {
             return dbEntity.SaveChanges();
         }
 
+        public async Task<List<CheckSheet>> allUserCheckSheets(){
+            var result = new List<CheckSheet>();
+            await dbEntity.Checksheet_Record!
+                                .ForEachAsync(record=>{
+                                    var item = (CheckSheet)record;
+                                    result.Add(item);
+                                });
+            return result;
+        }
         public async Task<Checksheet_Record> getCheckSheetCopy(int formId){
             var stations = dbEntity.Checksheet_Stations!.
                         Include(station=>station.fields)
@@ -67,17 +76,27 @@ namespace DbConnectors {
             return record;
         }
         public async Task UpdateAuthoredSheet(List<Checksheet_Station> sheetStations , int formID ) {
+
+            /*
+            var testStation = new Checksheet_Station{
+                                                        form = new Checksheet_Record(){id=formID}
+                                                    };
+            */
             var stationListInDB = dbEntity.Checksheet_Stations!
                                         .Include(station=>station.fields)
-                                        .Where(station=>station == new Checksheet_Station(){
-                                                                    form = new Checksheet_Record(){id=formID}}
-                                        );
-            var tasks = new List<Task>(); // to collect all the task 
+                                        .Where(station=>station.formFK==formID).ToList();
+                                        //.Select(station=>station);
+                                        /*
+                                        .Where(station=>station == new Checksheet_Station{
+                                                        form = new Checksheet_Record(){id=formID}
+                                                    })
+                                        .Select(station=>station);
+                                        */
+            var tasks = new List<Task>(); // to collect all the task
             if(stationListInDB.Count()>0){
-                System.Console.WriteLine("this route was taken");
             tasks.Add(addNewSections(sheetStations.Except(stationListInDB))); //action on new stations
             tasks.Add(deleteStations(stationListInDB.Except(sheetStations)));//action on deleted Stations
-            var modStations = stationListInDB.Intersect(sheetStations);
+            var modStations = stationListInDB.Intersect(sheetStations).ToList();
             tasks.Add(updateSections(modStations, sheetStations));
             Task.WhenAll(tasks).Wait(); 
             dbEntity.SaveChanges();
@@ -98,11 +117,11 @@ namespace DbConnectors {
             await Task.Delay(0);
             return ; 
         }
-        public async Task updateSections(IQueryable<Checksheet_Station> modStations, 
+        public async Task updateSections(List<Checksheet_Station> modStations, 
                                             List<Checksheet_Station> newSections)
         {  var stationSet = newSections.ToHashSet();
             modStations
-            .Include(m=>m.fields)
+            //.Include(m=>m.fields)
             .AsParallel()
             .ForAll(station=>{
                 var newValStation = new Checksheet_Station();

@@ -117,10 +117,11 @@ function provideTopFilterTruthy(key){
 }
 
 //functions on the checklist
-async function onClickNewAdd(elem){
+async function onClickNewAdd(elem){ //function to intiate new section and rasining new modal
     //console.log(elem.getAttribute("index"));
     const modalTempElem = document.getElementById("modalStartContent");
     modalTempElem.children[0].setAttribute("data-index",parseInt(elem.getAttribute("index"))+1);
+    modalTempElem.children[0].setAttribute("data-uid",uuidv4()); // providing new uuid to new section;
     modalTempElem.children[0].setAttribute("data-mode","copy");
     modalContainer.appendChild(modalTempElem.children[0]);
     modalContainer.style.display="flex";
@@ -211,7 +212,8 @@ async function generateSection(itemSection)
 {
     const selfElem= produceElement("section");
     const index = parseInt(itemSection["index"]);
-    selfElem.setAttribute("data-index", index);
+    selfElem.setAttribute("data-index", index); 
+    selfElem.setAttribute("data-uid", itemSection["uid"]);
     //add index fieldContainer
     selfElem.appendChild(
         generateFieldElement(
@@ -301,8 +303,9 @@ function valueContainerDataTagAdd(valueContainer){
     return valueContainer;
 }
 
-function prepareParameterElement(inspectionContainer){
+function prepareParameterElement(inspectionContainer, fieldTag){
     inspectionContainer.setAttribute("data-detail-name","operation");
+    inspectionContainer.setAttribute("data-uid",fieldTag["uid"]);
     return inspectionContainer;
 }
 
@@ -328,7 +331,7 @@ function generateInspectionElement(fieldTag){
     classContainer.appendChild(generateInspectionClassification(fieldTag["inspectionClass"]));
     specificationContainer.appendChild(document.createTextNode(fieldTag["specDef"]));
     const inspectionContainer1= produceElement("inspectionContainer");
-    prepareParameterElement(inspectionContainer1);
+    prepareParameterElement(inspectionContainer1,fieldTag);
     const inspectionContainer2=produceElement("inspectionContainer");
     if(fieldTag["fieldType"]=="text"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
@@ -482,7 +485,7 @@ async function populateForm(recordArray, formElem){
 
 async function renderForm(){
     const mode = new URLSearchParams(window.location.search).get("mode");
-    const filter = new URLSearchParams(window.location.search).get("filter");;
+    const filter = new URLSearchParams(window.location.search).get("filter");
     generateFormAccessories(mode);
     await getCheckSheetJSONDataFromBackend();
     await populateOptionInTopFilter(defaultFilter=filter);
@@ -493,7 +496,9 @@ async function renderForm(){
 async function getCheckSheetJSONDataFromBackend(){
     const model = new URLSearchParams(window.location.search).get("model");
     const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
-    await getCheckSheetData(model,checkSheetName);
+    const sheetID = new URLSearchParams(window.location.search).get("sid");
+    //await getCheckSheetData(model,checkSheetName);
+    await getCheckSheetData(sheetID, model,checkSheetName);
 }
 function saveFormElement(){
     const button = document.createElement("button");
@@ -542,7 +547,7 @@ function addMoreElementsHandler(event){
    
 }
 
-async function createContainerDOM(event){
+async function createContainerDOM(event){ //creates new field in the modal
     const requestBlock=document.getElementById("RequestBlock");
     const container = requestBlock.parentElement;
     const idName= event.target.value;
@@ -552,6 +557,7 @@ async function createContainerDOM(event){
         let html = elem.innerHTML.slice();
         html = addNameFieldToRadioSet(html);
         const elemNode= htmlToElement(html);
+        elemNode.setAttribute("data-uid", uuidv4());//adding new UID to created field 
         if(idName=="External Source Field"){
             const selectElem=elemNode.querySelector('select[name="sourceList"]');
             dataSourceRenderFunction(selectElem);
@@ -595,6 +601,7 @@ function checkSelectionFromRadioSet(containerElem){
 
 function generateFieldTag(elem){
     const jsonTag={};
+    jsonTag["uid"]=elem.getAttribute('data-uid');
     if(elem.getAttribute("data-field-type")=="name"){
         jsonTag["typ"]="name";
         jsonTag["fieldType"]="";
@@ -783,6 +790,7 @@ function generateModalEditElementDom(JsonObj){
 
 async function fillValuesToPopulatedElementDom(elem,JsonObj)
 {
+    elem.setAttribute("data-uid", JsonObj["uid"]);//adding uid to elem 
     if(JsonObj["fieldType"]=="text"){
         setDepthvalue(elem,[0],'input[data-field-input="answer"]',JsonObj["descText"]);
         setDepthvalue(elem,[1],'input[data-field-input="answer"]',JsonObj["specDef"]);
@@ -915,6 +923,7 @@ function productJsonObjFromModalContent(elem){
     }
     result["typ"]="section";
     result["index"]=mainModal.getAttribute("data-index");
+    result["uid"]=mainModal.getAttribute("data-uid");
     result["fieldType"]="";
     //console.log(JSON.stringify(result));
     return [result,mode];
@@ -938,7 +947,8 @@ async function cleanModalContent(elemModal){
 
 async function generateModalForEdit(JsonObj, modalTempParent){
     const modal=modalTempParent.children[0];
-    modal.setAttribute("data-index",parseInt(JsonObj["index"]));
+    modal.setAttribute("data-index", parseInt(JsonObj["index"]));
+    modal.setAttribute("data-uid", JsonObj["uid"]);
     modal.setAttribute("data-mode","edit");
     setDepthvalue(modal,[2],'input[data-field-input="answer"]',JsonObj["descText"]);
     let endElementIndex=2;
@@ -1317,31 +1327,38 @@ async function populateHeader(){
 }
 
 //communication with the backend
-async function getCheckSheetData(model,checkSheetName){
+async function getCheckSheetData(sheetID, model,checkSheetName){
     /*
     const checkSheetDetail={
         status:"QSK60",
         shortDesc:"QSK60Total",
     };*/
+    /*
     const checkSheetDetail={
         status:model,
         shortDesc:checkSheetName,
-    };
+    };*/
+    const checkSheetDetail={
+        sheetID: sheetID,  
+    }
     const response= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
     if(response.status==200){
-        MasterArray=responseToJson(response);
+        MasterArray=responseToJson(response).sheetArray;
         return MasterArray;
     }
 }
 async function saveAuthoredCheckSheetWithBackend(){
     const model = new URLSearchParams(window.location.search).get("model");
     const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
+    const sheetID = new URLSearchParams(window.location.search).get("sid");
+
     const checkSheetJSONTemplate={
         checkSheetDetail:{
-            status:model,
-            shortDesc:checkSheetName,
+            model:model,
+            sheetName:checkSheetName,
+            sheetID: sheetID
         },
-        JsonString:JSON.stringify(MasterArray),
+        sheetArray:MasterArray,
     }
     const {status, data}= await postJsonData("/saveAuthorCheckSheet" , checkSheetJSONTemplate,);
 

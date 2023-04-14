@@ -1,7 +1,7 @@
 const IssueTable= document.getElementById("IssueTable");
 const modalContainer = document.getElementById("modalBackground");
 //const closeModalButton = document.getElementById("close");
-const sideBar = document.getElementById("sideBar")
+const sideBar = document.getElementById("sideBar");
 const templateHTML = document.getElementById("modal_template");
 let CHECKSHEETARRAY = [];
 
@@ -23,82 +23,110 @@ async function getCheckSheetUser(url="/UserCheckSheets"){
 
 function generateDOMattributes(txt){
     const classMap= new Map() ;
-    classMap.set("shortDesc",["item", "descBlock"]);
+    classMap.set("sheetName",["item", "descBlock"]);
     classMap.set("lastAction",["item"]);
-    classMap.set("status",["item"]);
+    classMap.set("model",["item"]);
     classMap.set("sn",["item", "shortBlock"]);
-    classMap.set("itemSection" , ["itemSection",])
+    classMap.set("itemSection" , ["itemSection",]);
+    classMap.set("status", ["item", "shortBlock"]);
     const DomMap = new Map();
-    DomMap.set("shortDesc","div");
+    DomMap.set("sheetName","div");
     DomMap.set("lastAction","div");
-    DomMap.set("status","div");
+    DomMap.set("model","div");
     DomMap.set("sn","div");
     DomMap.set("itemSection","div");
+    DomMap.set("status", ["div"]);
     return {
         classArray:classMap.get(txt),
         domTyp:DomMap.get(txt),
     };
 }
 
-function generateLastActionElement(model,checkSheetName){
-    const htmlString = 
+function generateLastActionElement(model,checkSheetName, status ,sheetID){
+    let htmlString = 
     `
     <div class=" item ">
-        <img src="/assets/img/icons/remove.svg">
+        <img src="/assets/img/icons/$stat$.svg">
         <img src="/assets/img/icons/edit.png">
     </div>
     `;
-    const result = htmlToElement(htmlString); 
+    htmlString=htmlString.replace('$stat$', status=="active" ? "block" : "activate" );
+    const result = htmlToElement(htmlString);
+    result.children[0].onclick = async()=>{
+        let payload = {
+            sheetID: sheetID,
+            newStatus: status=="active"? 'inactive' : "active" , 
+        };
+        let response = await postJsonData("/changeCheckSheetState", payload,);
+        if (response.data =="updated"){
+            //action on updation is confirmed;
+        };
+        let result = await getCheckSheetUser();
+        renderIssueTable(IssueTable,result);
+    };
     result.children[1].onclick= async ()=>{
-        redirectToSheet(model,checkSheetName);
+        redirectToSheet(model,checkSheetName, sheetID);
     }
     return result ;
 }
-async function redirectToSheet(model,checkSheetName){
-    window.location.href=`/checksheet?model=${model}&sheet=${checkSheetName}&mode=author`;
+async function redirectToSheet(model,checkSheetName, sheetID){
+    window.location.href=`/checksheet?sid=${sheetID}&model=${model}&sheet=${checkSheetName}&mode=author`;
 } 
 
-async function renderIssueTable(tableElem, issueBlock){
+async function renderIssueTable(tableElem, itemBlock){
     const Header = `
     <div class="itemSection tableHeader">
         <div class="item shortBlock">Sr</div>
         <div class="item descBlock">CheckSheet Name</div>
         <div class="item">Model</div>
+        <div class="item shortBlock">Status</div>
         <div class="item">Actions</div>
     </div>
     `;
     tableElem.innerHTML='';
     tableElem.appendChild(htmlToElement(Header));
-    for(let i=0; i< issueBlock.length; i++){
-        tableElem.appendChild(generateItemSectionDOM(issueBlock[i],i+1));
+    for(let i=0; i< itemBlock.length; i++){
+        tableElem.appendChild(generateItemSectionDOM(itemBlock[i],i+1));
     }
     return tableElem;
 }
 
-function generateItemSectionDOM(issueObj, index){
-    const keyArray=Object.keys(issueObj).filter(
+function generateItemSectionDOM(itemObj, index){
+    const keyArray=Object.keys(itemObj).filter(
         (key)=>{
-            if(key==="issueID"){
+            if(key=="sheetID" || key=="sheetArray" ){//|| key=="status"){
                 return false;
             }
             return true;
         }
     )
+    const keyOrder = ["sheetName" ,"model","status"];// to maintain the order of creating objects as per the column order in table
+    keyArray.sort((a,b)=>{
+        if(!keyOrder.includes(a) || !keyOrder.includes(b) ){
+            return 0 ;
+        }
+        if(keyOrder.indexOf(a)> keyOrder.indexOf(b)){
+            return 1  // for sort order "b then a";  
+        }
+        return -1;  // for sort order "a then b";
+    });
     const parentAttrib=generateDOMattributes('itemSection');
-    const sectionElement=generateDomElement(parentAttrib.domTyp,parentAttrib.classArray,"");
+    const sectionElement=generateDomElement(parentAttrib.domTyp, parentAttrib.classArray,"");
     //adding 'sn' dom element 
     let attrib = generateDOMattributes('sn');
-    let chilElem=generateDomElement(attrib.domTyp,attrib.classArray,index);
-    sectionElement.appendChild(chilElem);
+    let childElem=generateDomElement(attrib.domTyp, attrib.classArray,index);
+    sectionElement.appendChild(childElem);
     keyArray.forEach( // loop to generate childElements and attach to sectionElement;
         element => {
         let attrib = generateDOMattributes(element);
-        let chilElem=generateDomElement(attrib.domTyp,attrib.classArray,issueObj[element]);
-        sectionElement.appendChild(chilElem);
+        let childElem=generateDomElement(attrib.domTyp,attrib.classArray, itemObj[element]);
+        sectionElement.appendChild(childElem);
     }); 
-    sectionElement.appendChild(generateLastActionElement( issueObj["status"] ,issueObj["shortDesc"])); // adding edit & delete icons for action columns
+    sectionElement.appendChild(generateLastActionElement( itemObj["model"] , itemObj["sheetName"], itemObj["status"], itemObj["sheetID"])); // adding edit & delete icons for action columns
     return sectionElement;
 }
+
+// modal interaction functions
 
 async function raiseModal(){
     modalContainer.innerHTML = templateHTML.innerHTML.slice();
@@ -205,3 +233,7 @@ async function activateCheckSheetOption(event,modelSelectElem){
     return;
 }
 
+//admin interaction function
+async function changeStateOfSheet(sheetID){
+    postJsonData()
+}

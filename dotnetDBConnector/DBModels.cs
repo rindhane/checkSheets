@@ -154,7 +154,7 @@ public class Checksheet_Station : System.IEquatable<Checksheet_Station>{
 
       return obj1.Equals(obj2);
    }
-   public static bool operator != (Checksheet_Station obj1, Checksheet_Station obj2) {
+    public static bool operator != (Checksheet_Station obj1, Checksheet_Station obj2) {
      if (((object)obj1) == null || ((object)obj2) == null)
          return ! System.Object.Equals(obj1, obj2);
 

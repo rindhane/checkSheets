@@ -2,7 +2,7 @@
 using System.Text; //to get the encoding.UTF8
 using System.Collections.Generic;
 
-namespace FileHandler { 
+namespace ReaderHandler { 
 
     public interface IFileHandler{
         

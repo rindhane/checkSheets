@@ -13,6 +13,7 @@ public static class Routes{
         app.MapGet("/Admin",RouteMethods.pageRedirect);
         app.MapGet("/checkSheet", RouteMethods.pageRedirectWithParams);
         app.MapPost("/UserCheckSheets",RouteMethods.userCheckSheets);
+        app.MapPost("/changeCheckSheetState", RouteMethods.changeCheckSheetState);
         app.MapPost("/newCheckSheet",RouteMethods.newCheckSheet);
         app.MapGet("/birthCertificate", RouteMethods.pageRedirect);
         app.MapGet("/test", RouteMethods.test);

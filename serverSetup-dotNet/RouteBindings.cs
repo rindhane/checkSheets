@@ -5,6 +5,9 @@ using System.Threading.Tasks; // using async Task
 using FileHandler; //to access the IFileHandler interface
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using DbConnectors.Models;
+using DbConnectors;
+using JsonResponseStruct; // to access classes for JSON-response classes;
 
 namespace App.RouteBindings
 {
@@ -26,9 +29,20 @@ namespace App.RouteBindings
       return Results.LocalRedirect("~/login",false,true);
     }
 
-    public static async Task userCheckSheets(HttpContext context, HttpRequest request, IFileHandler fileHandler ){
+    public static async Task userCheckSheets(HttpContext context, HttpRequest request,DbLayer dbConn){
       string bodyString = httpHandlers.getRequestBody(request.Body);
-      await context.Response.WriteAsJsonAsync<List<checkSheet>>(fileHandler.getCheckSheetUserData());
+      //await context.Response.WriteAsJsonAsync<List<checkSheet>>(fileHandler.getCheckSheetUserData());
+      await context.Response.WriteAsJsonAsync<List<CheckSheet>>(await dbConn.allUserCheckSheets());
+    } 
+
+    public static async Task changeCheckSheetState(HttpContext context, HttpRequest request, DbLayer db){
+      var resultString = await context.Request.ReadFromJsonAsync<CheckSheetStatus>();
+      sheetStatus state = sheetStatus.inactive;
+      if (resultString!.newStatus == "active"){
+        state = sheetStatus.active;
+      }
+      await db.changeStatusOfCheckSheet(resultString!.sheetID, state); 
+      await context.Response.WriteAsync("updated");
     }
 
     public static async Task newCheckSheet(HttpContext context, HttpRequest request, IFileHandler fileHandler){
@@ -37,20 +51,21 @@ namespace App.RouteBindings
       fileHandler.createNewCheckSheet(data!); 
       await context.Response.WriteAsync("done");
     }
-    public static async Task getCheckSheetData(HttpContext context, HttpRequest request, IFileHandler fileHandler){
-      var data= new checkSheet();
+    public static async Task getCheckSheetData(HttpContext context, HttpRequest request, DbLayer db){
       //string bodyString = httpHandlers.getRequestBody(request.Body);
-      data = await context.Request.ReadFromJsonAsync<checkSheet>();
-      var resultJSONString = fileHandler.getCheckSheet(data!);
-      await context.Response.WriteAsync(resultJSONString);
+      var data = await context.Request.ReadFromJsonAsync<CheckSheet>();
+      //var resultJSONString = fileHandler.getCheckSheet(data!);
+      var sheet= (CheckSheet) await db.getCheckSheetCopy(data!.sheetID);
+      await context.Response.WriteAsJsonAsync(sheet);
     }
 
-    public static async Task saveCheckSheet(HttpContext context, HttpRequest request, IFileHandler fileHandler){
-      var data= new updateCheckSheet();
+    public static async Task saveCheckSheet(HttpContext context, HttpRequest request, DbLayer db){
+      //var data= new updateCheckSheet();
       //string bodyString = httpHandlers.getRequestBody(request.Body);
-      data = await context.Request.ReadFromJsonAsync<updateCheckSheet>();
-      var result = fileHandler.updateCheckSheet(data!.checkSheetDetail!, data.JsonString!); 
-      await context.Response.WriteAsync(result.ToString());
+      var data = await context.Request.ReadFromJsonAsync<CheckSheet>();
+      var dataInput = (Checksheet_Record)data!;
+      await db.UpdateAuthoredSheet(dataInput.stations!,dataInput.id); 
+      await context.Response.WriteAsync("updated");
     }
 
     public static async Task storeFormData(HttpContext context, HttpRequest request, IDataHandler formUpdateHandler){

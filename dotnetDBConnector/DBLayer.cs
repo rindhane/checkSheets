@@ -93,14 +93,15 @@ namespace DbConnectors {
                                         .Select(station=>station);
                                         */
             var tasks = new List<Task>(); // to collect all the task
-            if(stationListInDB.Count()>0){
-            tasks.Add(addNewSections(sheetStations.Except(stationListInDB))); //action on new stations
-            tasks.Add(deleteStations(stationListInDB.Except(sheetStations)));//action on deleted Stations
-            var modStations = stationListInDB.Intersect(sheetStations).ToList();
-            tasks.Add(updateSections(modStations, sheetStations));
-            Task.WhenAll(tasks).Wait(); 
-            dbEntity.SaveChanges();
-            return ;   
+            if(stationListInDB.Count()>0)
+            {
+                tasks.Add(addNewSections(sheetStations.Except(stationListInDB))); //action on new stations
+                tasks.Add(deleteStations(stationListInDB.Except(sheetStations)));//action on deleted Stations
+                var modStations = stationListInDB.Intersect(sheetStations).ToList();
+                tasks.Add(updateSections(modStations, sheetStations));
+                Task.WhenAll(tasks).Wait(); 
+                dbEntity.SaveChanges();
+                return ;   
             }
             await addNewSections(sheetStations);
             dbEntity.SaveChanges();
@@ -119,44 +120,63 @@ namespace DbConnectors {
         }
         public async Task updateSections(List<Checksheet_Station> modStations, 
                                             List<Checksheet_Station> newSections)
-        {  var stationSet = newSections.ToHashSet();
+        {  
+            var stationSet = newSections.ToHashSet();
+            var tasks = new Task[modStations.Count];
+            int i = 0 ;
+            foreach(var station in modStations)
+            {
+                tasks[i] = new Task(()=>
+                {
+                    var tempStation = new Checksheet_Station();
+                    if(stationSet.TryGetValue(station, out tempStation))
+                    {
+                        updateFields(station, tempStation.fields!).GetAwaiter();
+                    }
+                });
+                tasks[i].Start();
+                i++;
+            };
             modStations
-            //.Include(m=>m.fields)
             .AsParallel()
             .ForAll(station=>{
                 var newValStation = new Checksheet_Station();
                 stationSet.TryGetValue(station, out newValStation);
-                station.sectorName = newValStation!.sectorName ;
-                station.sequenceOrder = newValStation.sequenceOrder;
-                //dbEntity.SaveChangesAsync(); //not required
-                _ = updateFields(station, newValStation.fields!);
+                dbEntity.Checksheet_Stations!
+                        .Where(getStation=>getStation==newValStation!)
+                        .ExecuteUpdateAsync(s=>s //existing station
+                        .SetProperty(s=>s.sectorName, x=>newValStation!.sectorName)
+                        .SetProperty(s=>s.sequenceOrder, x=>newValStation!.sequenceOrder)
+                        ).GetAwaiter();
             });
+            Task.WaitAll(tasks);
             await Task.Delay(0);
             return ; 
         }
 
         public async Task updateFields( Checksheet_Station station , ICollection<Checksheet_Field>modFields)
         {
-           _ = DeleteFieldsFromUpdate(station, modFields);
            modFields
            .AsParallel()
            .ForAll(modField=>{
             if(dbEntity.Checksheet_Fields!.Any(field=>field==modField)){
-                _ = modifyField(modField);
+                modifyField(modField).GetAwaiter();
             }
             else{
-                dbEntity.Checksheet_Fields!.AddAsync(modField);
+                dbEntity.Checksheet_Fields!.AddAsync(modField).GetAwaiter();
             }
            }
            );
-           await Task.Delay(0);
+           System.Console.WriteLine("before the delete Fields");
+           await DeleteFieldsFromUpdate(station, modFields);
+           System.Console.WriteLine("after the delete fields");
            return ;  
         }
 
         public async Task modifyField(Checksheet_Field newField ){
            var fieldInDB =  dbEntity.Checksheet_Fields!
                     .Where(fieldDB=>fieldDB==newField)
-                    .Select(fieldDb=>new Checksheet_Field{UID=fieldDb.UID})
+                    //.Select(fieldDb=>new Checksheet_Field{UID=fieldDb.UID})
                     .ExecuteUpdateAsync(f=>f
                         .SetProperty(f=>f.descText, x=>newField.descText)
                         //.SetProperty(f=>f.fieldType, x=>newField.fieldType) //fieldType cannot change, it is fixed at the creation
@@ -179,14 +199,18 @@ namespace DbConnectors {
 
         public async Task DeleteFieldsFromUpdate(Checksheet_Station station , ICollection<Checksheet_Field>modFields){
             var fieldSet = modFields.ToHashSet();
+            System.Console.WriteLine("did it run, delete loop");
            dbEntity.Checksheet_Fields!
                     .AsParallel()
-                    .Select(fieldSelect=>new Checksheet_Field{UID=fieldSelect.UID,station=fieldSelect.station})
+                    //.Select(fieldSelect=>new Checksheet_Field{UID=fieldSelect.UID,station=fieldSelect.station})
                     .Where(fieldSelect=>fieldSelect.station! ==station)
                     .ForAll(fieldInDB=>{
                         var tempField = new Checksheet_Field();
                         if(!fieldSet.TryGetValue(fieldInDB, out tempField)){
-                            dbEntity.Remove(fieldInDB);
+                            dbEntity.Checksheet_Fields!.
+                            Remove(fieldInDB);
+                            //Where(field=>field==tempField!)
+                            //.ExecuteDeleteAsync().GetAwaiter();
                             //dbEntity.SaveChanges();
                         }
                     });

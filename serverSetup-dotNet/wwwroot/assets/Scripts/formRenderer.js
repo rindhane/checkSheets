@@ -1351,14 +1351,11 @@ async function saveAuthoredCheckSheetWithBackend(){
     const model = new URLSearchParams(window.location.search).get("model");
     const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
     const sheetID = new URLSearchParams(window.location.search).get("sid");
-
     const checkSheetJSONTemplate={
-        checkSheetDetail:{
             model:model,
             sheetName:checkSheetName,
-            sheetID: sheetID
-        },
-        sheetArray:MasterArray,
+            sheetID: sheetID,
+            sheetArray:MasterArray,
     }
     const {status, data}= await postJsonData("/saveAuthorCheckSheet" , checkSheetJSONTemplate,);
 

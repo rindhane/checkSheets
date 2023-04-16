@@ -113,7 +113,7 @@ namespace DbConnectors.Models {
         public static implicit operator Checksheet_Field(field example) => new Checksheet_Field(){
             UID=example.UID,
             descText =example.descText,  
-            typ = example.fieldType, 
+            typ = example.typ, 
             fieldType = example.fieldType,
             inspectionClass =  System.Enum.Parse<Models.inspectionClass>(example.inspectionClass!), 
             specDef =example.specDef, 

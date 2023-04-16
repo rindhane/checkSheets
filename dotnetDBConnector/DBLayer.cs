@@ -8,10 +8,19 @@ using System.Collections; // to access DictionaryEntry
 namespace DbConnectors {
     public class DbLayer{
         public DbEFContext dbEntity ;
+
+        dbOptions optConfig ; 
         public DbLayer( dbOptions opt){
-            dbEntity = new DbEFContext(opt);
-            dbEntity.SaveChangesFailed+=SaveChangesFailureEvent;//correctionPending
+            optConfig=opt;
+            dbEntity = spawnNewContext();
         }
+
+        DbEFContext spawnNewContext (){
+            var temp_dbEntity = new DbEFContext(optConfig); 
+            temp_dbEntity.SaveChangesFailed+=SaveChangesFailureEvent;//correctionPending
+            return temp_dbEntity;
+        }
+
         public async Task<int> createNewSheet(Checksheet_Record newSheet, bool existing, int ExistingSheetId = -1){
             _ = dbEntity.Checksheet_Record!.Add(newSheet);
             dbEntity.SaveChanges(); // to receive newSheet.id
@@ -95,7 +104,7 @@ namespace DbConnectors {
             var tasks = new List<Task>(); // to collect all the task
             if(stationListInDB.Count()>0)
             {
-                tasks.Add(addNewSections(sheetStations.Except(stationListInDB))); //action on new stations
+                tasks.Add(addNewSections(sheetStations.Except(stationListInDB), formID)); //action on new stations
                 tasks.Add(deleteStations(stationListInDB.Except(sheetStations)));//action on deleted Stations
                 var modStations = stationListInDB.Intersect(sheetStations).ToList();
                 tasks.Add(updateSections(modStations, sheetStations));
@@ -103,24 +112,38 @@ namespace DbConnectors {
                 dbEntity.SaveChanges();
                 return ;   
             }
-            await addNewSections(sheetStations);
+            await addNewSections(sheetStations, formID);
             dbEntity.SaveChanges();
             return ;
         }
-        public async Task addNewSections(IEnumerable<Checksheet_Station> newStations ) 
+        public async Task addNewSections(IEnumerable<Checksheet_Station> newStations, int formID ) 
         {
-            dbEntity.Checksheet_Stations!.AddRange(newStations);
+            if (!(newStations.Count()>0)) //no action if no new stations 
+            {
+                return ;
+            }
+            System.Console.WriteLine("this shouldn't be called work");
+            var temp_dbEntity = spawnNewContext();
+            foreach (var s  in newStations){
+                s.formFK=formID;
+            }
+            temp_dbEntity.Checksheet_Stations!.AddRange(newStations);
             newStations
             .AsParallel()
             .ForAll(station=>{
-                dbEntity.AddRange(station.fields!);
+                temp_dbEntity.AddRange(station.fields!);
             }); 
-            await Task.Delay(0);
+            await temp_dbEntity.SaveChangesAsync();
             return ; 
         }
         public async Task updateSections(List<Checksheet_Station> modStations, 
                                             List<Checksheet_Station> newSections)
         {  
+            
+            if (!(modStations.Count()>0)) { //no action no sections for modifications
+                return ;
+            }
+            
             var stationSet = newSections.ToHashSet();
             var tasks = new Task[modStations.Count];
             int i = 0 ;
@@ -131,50 +154,56 @@ namespace DbConnectors {
                     var tempStation = new Checksheet_Station();
                     if(stationSet.TryGetValue(station, out tempStation))
                     {
-                        updateFields(station, tempStation.fields!).GetAwaiter();
+                        _ = updateFields(station, tempStation.fields!);
                     }
                 });
                 tasks[i].Start();
                 i++;
             };
+            var temp_dbEntity= spawnNewContext();
             modStations
             .AsParallel()
             .ForAll(station=>{
                 var newValStation = new Checksheet_Station();
                 stationSet.TryGetValue(station, out newValStation);
-                dbEntity.Checksheet_Stations!
+                temp_dbEntity.Checksheet_Stations!
                         .Where(getStation=>getStation==newValStation!)
                         .ExecuteUpdateAsync(s=>s //existing station
                         .SetProperty(s=>s.sectorName, x=>newValStation!.sectorName)
                         .SetProperty(s=>s.sequenceOrder, x=>newValStation!.sequenceOrder)
                         ).GetAwaiter();
             });
+            var temp_save=temp_dbEntity.SaveChangesAsync();
             Task.WaitAll(tasks);
-            await Task.Delay(0);
+            await temp_save;
             return ; 
         }
 
         public async Task updateFields( Checksheet_Station station , ICollection<Checksheet_Field>modFields)
         {
+           var temp_dbEntity = spawnNewContext();
            modFields
            .AsParallel()
            .ForAll(modField=>{
-            if(dbEntity.Checksheet_Fields!.Any(field=>field==modField)){
+            if(temp_dbEntity.Checksheet_Fields!.Any(field=>field==modField)){
                 modifyField(modField).GetAwaiter();
             }
             else{
-                dbEntity.Checksheet_Fields!.AddAsync(modField).GetAwaiter();
+                temp_dbEntity.Checksheet_Fields!.AddAsync(modField).GetAwaiter();
             }
            }
            );
+           var save = temp_dbEntity.SaveChangesAsync();
            System.Console.WriteLine("before the delete Fields");
            await DeleteFieldsFromUpdate(station, modFields);
            System.Console.WriteLine("after the delete fields");
+           await save;
            return ;  
         }
 
         public async Task modifyField(Checksheet_Field newField ){
-           var fieldInDB =  dbEntity.Checksheet_Fields!
+            var temp_dbEntity = spawnNewContext();
+           var fieldInDB =  temp_dbEntity.Checksheet_Fields!
                     .Where(fieldDB=>fieldDB==newField)
                     //.Select(fieldDb=>new Checksheet_Field{UID=fieldDb.UID})
                     .ExecuteUpdateAsync(f=>f
@@ -193,39 +222,49 @@ namespace DbConnectors {
                         .SetProperty(f=>f.imageData, x=>newField.imageData)
                         );
                         //_ = dbEntity.SaveChangesAsync();
-            await Task.Delay(0);
+            await temp_dbEntity.SaveChangesAsync();
             return ;
         }
 
-        public async Task DeleteFieldsFromUpdate(Checksheet_Station station , ICollection<Checksheet_Field>modFields){
+        public async Task DeleteFieldsFromUpdate(Checksheet_Station station , ICollection<Checksheet_Field>modFields)
+        {
             var fieldSet = modFields.ToHashSet();
+            var temp_dbEntity = spawnNewContext();
             System.Console.WriteLine("did it run, delete loop");
-           dbEntity.Checksheet_Fields!
+            temp_dbEntity.Checksheet_Fields!
                     .AsParallel()
                     //.Select(fieldSelect=>new Checksheet_Field{UID=fieldSelect.UID,station=fieldSelect.station})
                     .Where(fieldSelect=>fieldSelect.station! ==station)
                     .ForAll(fieldInDB=>{
                         var tempField = new Checksheet_Field();
                         if(!fieldSet.TryGetValue(fieldInDB, out tempField)){
-                            dbEntity.Checksheet_Fields!.
+                            temp_dbEntity.Checksheet_Fields!.
                             Remove(fieldInDB);
                             //Where(field=>field==tempField!)
                             //.ExecuteDeleteAsync().GetAwaiter();
                             //dbEntity.SaveChanges();
                         }
                     });
-            await Task.Delay(0);
+            System.Console.WriteLine("can you run");
+            await temp_dbEntity.SaveChangesAsync();
             return ;        
         }
         
         public async Task deleteStations(IEnumerable<Checksheet_Station> delStations){
+            if (!(delStations.Count()>0)){ // no action if no delStations;
+                return ;
+            }
+            var temp_dbEntity = spawnNewContext();
             delStations.AsParallel()
                     .ForAll(station=>{
                         //dbEntity.RemoveRange(station.fields!); //correctionPending see if fields are required
-                        dbEntity.Remove(station);
+                        temp_dbEntity.Checksheet_Stations!
+                        .Where(s=>s==station)
+                        .ExecuteDelete();
+                        //Remove(station);
                     }
             );
-            await Task.Delay(0);
+            await temp_dbEntity.SaveChangesAsync();
             return ;
         }
 

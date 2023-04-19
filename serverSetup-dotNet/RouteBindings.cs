@@ -45,10 +45,14 @@ namespace App.RouteBindings
       await context.Response.WriteAsync("updated");
     }
 
-    public static async Task newCheckSheet(HttpContext context, HttpRequest request, IFileHandler fileHandler){
-      var data= new createCheckSheet();
-      data=await context.Request.ReadFromJsonAsync<createCheckSheet>();
-      fileHandler.createNewCheckSheet(data!); 
+    public static async Task newCheckSheet(HttpContext context, HttpRequest request, DbLayer db){
+      var data= new createCheckSheetInput();
+      data=await context.Request.ReadFromJsonAsync<createCheckSheetInput>();
+      System.Console.WriteLine(JsonConvert.SerializeObject(data));
+      var inputSheet = (Checksheet_Record) data!.newCheckSheet!;
+      inputSheet.status = "active"; 
+      await db.createNewSheet(inputSheet, data.fromExisting, ((Checksheet_Record)data.refCheckSheet!).id );
+      //fileHandler.createNewCheckSheet(data!); 
       await context.Response.WriteAsync("done");
     }
     public static async Task getCheckSheetData(HttpContext context, HttpRequest request, DbLayer db){

@@ -13,7 +13,7 @@ namespace DbConnectors.Models {
 
         public static implicit operator Checksheet_Record(CheckSheet example)=> new Checksheet_Record{
                 sheetName = example.sheetName,
-                stations= section.convertListOfSectionsToStations(example.sheetArray!),
+                stations= section.convertListOfSectionsToStations(example.sheetArray!=null ? example.sheetArray : new List<section>()),
                 id=example.sheetID,
                 model=example.model,
                 //status=example.status, // not transfering the status since it should be assigned through the specific api not from data 
@@ -21,7 +21,7 @@ namespace DbConnectors.Models {
         
         public static explicit operator CheckSheet(Checksheet_Record example)=> new CheckSheet{
                 sheetName = example.sheetName,
-                sheetArray= section.convertListOfStationsToSections(example.stations!),
+                sheetArray= section.convertListOfStationsToSections(example.stations!=null ? example.stations : new List<Checksheet_Station>()),
                 sheetID=example.id,
                 model=example.model,
                 status=example.status,

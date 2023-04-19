@@ -150,13 +150,13 @@ async function saveNewCheckSheetDetails(event,elem){
     const refSheetNameElement = masterParent.querySelector('select[name="checkSheetSelection"]');
     const checkSheetData ={
         newCheckSheet:{
-            status:checkSheetModel.value,
-            shortDesc:checkSheetName.value,
+            model:checkSheetModel.value,
+            sheetName:checkSheetName.value,
         },
         fromExisting:fromExistingElement.checked,
         refCheckSheet:{
-            status:refModelElement.value,
-            shortDesc:refSheetNameElement.value,
+            model:refModelElement.value,
+            sheetName:refSheetNameElement.value,
         },
     };
     const result= await postJsonData("/newCheckSheet", checkSheetData,);

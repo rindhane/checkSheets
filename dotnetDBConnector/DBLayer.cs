@@ -127,6 +127,7 @@ namespace DbConnectors {
                 s.formFK=formID;
             }
             temp_dbEntity.Checksheet_Stations!.AddRange(newStations);
+            //await temp_dbEntity.SaveChangesAsync();
             newStations
             .AsParallel()
             .ForAll(station=>{

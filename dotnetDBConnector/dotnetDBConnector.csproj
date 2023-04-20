@@ -6,6 +6,8 @@
     for self-contained : 
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>

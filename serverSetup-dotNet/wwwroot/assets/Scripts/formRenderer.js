@@ -1326,6 +1326,7 @@ async function populateHeader(){
     ESNInputValue.value=AlphaNumeric(8);
 }
 
+
 //communication with the backend
 async function getCheckSheetData(sheetID, model,checkSheetName){
     /*
@@ -1343,9 +1344,22 @@ async function getCheckSheetData(sheetID, model,checkSheetName){
     }
     const response= await postJsonData("/GetCheckSheetData" , checkSheetDetail,);
     if(response.status==200){
-        MasterArray=responseToJson(response).sheetArray;
+        tempArray=responseToJson(response).sheetArray;
+        await sortMasterArrayfromBackend(tempArray);
+        MasterArray= tempArray;
         return MasterArray;
     }
+}
+async function sortMasterArrayfromBackend (responseArray){
+    responseArray.sort((a,b)=>{
+        if(a.index > b.index){
+            return 1;
+        }
+        if (a.index < b.index){
+            return -1;
+        }
+        return 0;
+    });
 }
 async function saveAuthoredCheckSheetWithBackend(){
     const model = new URLSearchParams(window.location.search).get("model");

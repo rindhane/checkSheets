@@ -185,7 +185,7 @@ async function provideTemplateOption(event,elem){
         const modelSelector = parentElem.querySelector('select[name="modelSelection"]');
         const modelSelectorContainer = parentElem.querySelector('div#modelProvider');
         modelSelectorContainer.classList.remove("hideContainer");
-        const result = CHECKSHEETARRAY.map(item=>item.status);//collecting all the models from the result;
+        const result = CHECKSHEETARRAY.map(item=>item.model);//collecting all the models from the result;
         modelSelector.innerHTML="";
         const initialOption = htmlToElement(`<option value="0" selected> Choose Model</option>`);
         modelSelector.appendChild(initialOption);
@@ -217,8 +217,8 @@ async function activateCheckSheetOption(event,modelSelectElem){
         const initialOption = htmlToElement(`<option value="0" selected> Choose CheckSheet</option>`);
         checkSheetSelector.appendChild(initialOption);
         CHECKSHEETARRAY.filter(
-            item=>item.status==modelSelectElem.value
-            ).map(item=>item.shortDesc
+            item=>item.model==modelSelectElem.value
+            ).map(item=>item.sheetName
             ).forEach(sheetName=>{
             const child=document.createElement("option");
             child.value=sheetName;

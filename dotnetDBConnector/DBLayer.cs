@@ -27,27 +27,58 @@ namespace DbConnectors {
             if (existing) {
                 //var oldCheckSheet = dbEntity.Checksheet_Record!.Where(record=>record.id==id).First();
                 dbEntity.Checksheet_Stations!
-                               .Include(station=>station.fields) 
+                               .Include(station=>station.fields)
+                               //.Where(station=>station.form! == new Checksheet_Record(){id=ExistingSheetId})
+                               .Where(station=>station.formFK == ExistingSheetId)
                                .AsParallel()
-                               .Where(station=>station.form! == new Checksheet_Record(){id=ExistingSheetId})
                                .ForAll(station=>{
+                                    var temp_dbEntity = spawnNewContext();
                                     var newStation = new Checksheet_Station(){
                                     sectorName= station.sectorName,
-                                    form= newSheet, 
+                                    formFK= newSheet.id, 
                                     sequenceOrder=station.sequenceOrder,
                                     UID= System.Guid.NewGuid()
                                     };
-                                    dbEntity.Checksheet_Stations!.Add(newStation);
-                                    dbEntity.SaveChangesAsync();
-                                    var newFields = new List<Checksheet_Field>();
+                                    temp_dbEntity.Checksheet_Stations!.Add(newStation);
+                                    _ = temp_dbEntity.SaveChangesAsync().GetAwaiter().GetResult();
+                                    //var newFields = new List<Checksheet_Field>();
                                     station.fields!
                                     .ToList()
-                                    .ForEach(newField=>{
-                                        newField.station=newStation;
+                                    .AsParallel()
+                                    .ForAll(oldField=>{
+                                        var temp_internal_dbEntity = spawnNewContext();
+                                        var newField =  new Checksheet_Field{
+                                            stationID=newStation.UID,
+                                            sequenceOrder = newStation.sequenceOrder,
+                                            UID= System.Guid.NewGuid(),
+                                            descText = oldField.descText,
+                                            typ = oldField.typ,
+                                            fieldType = oldField.fieldType,
+                                            inspectionClass = oldField.inspectionClass,
+                                            specDef = oldField.specDef,
+                                            meanValue = oldField.meanValue,
+                                            maxCheck = oldField.maxCheck,
+                                            minCheck = oldField.minCheck,
+                                            multipleOptions  = oldField.multipleOptions,
+                                            addIncrement = oldField.addIncrement,
+                                            addDecrement = oldField.addDecrement,
+                                            dataSource   = oldField.dataSource,
+                                            sourceField  = oldField.sourceField,
+                                            imageData    = oldField.imageData,
+                                        };
+                                        temp_internal_dbEntity.Checksheet_Fields!.Add(newField);
+                                        temp_internal_dbEntity.SaveChanges();
+                                    });
+                                    
+                                    /*.ForEach(oldField=>{
+                                        var newField = 
+                                        newField.stationID=newStation.UID;
+                                        newField.UID= System.Guid.NewGuid();
                                         newFields.Add(newField);
                                     });
-                                    dbEntity.Checksheet_Fields!.AddRangeAsync(newFields);
-                                    dbEntity.SaveChangesAsync();
+                                    */
+                                    //temp_dbEntity.Checksheet_Fields!.AddRangeAsync(newFields).GetAwaiter().GetResult();
+                                    temp_dbEntity.SaveChangesAsync().GetAwaiter();
                                });
             }
             await Task.Delay(0);
@@ -209,6 +240,7 @@ namespace DbConnectors {
                         .SetProperty(f=>f.descText, x=>newField.descText)
                         //.SetProperty(f=>f.fieldType, x=>newField.fieldType) //fieldType cannot change, it is fixed at the creation
                         .SetProperty(f=>f.inspectionClass, x=>newField.inspectionClass)
+                        .SetProperty(f=>f.sequenceOrder, x=>newField.sequenceOrder)
                         .SetProperty(f=>f.specDef, x=>newField.specDef)
                         .SetProperty(f=>f.meanValue, x=>newField.meanValue)
                         .SetProperty(f=>f.maxCheck, x=>newField.maxCheck)

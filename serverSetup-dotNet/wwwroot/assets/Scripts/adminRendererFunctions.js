@@ -155,6 +155,7 @@ async function saveNewCheckSheetDetails(event,elem){
         },
         fromExisting:fromExistingElement.checked,
         refCheckSheet:{
+            sheetID : refSheetNameElement.getAttribute("data-detail-sheetid"),
             model:refModelElement.value,
             sheetName:refSheetNameElement.value,
         },
@@ -218,18 +219,31 @@ async function activateCheckSheetOption(event,modelSelectElem){
         checkSheetSelector.appendChild(initialOption);
         CHECKSHEETARRAY.filter(
             item=>item.model==modelSelectElem.value
-            ).map(item=>item.sheetName
-            ).forEach(sheetName=>{
+            ).map(item=> {
+                return {name:item.sheetName, sheetID:item.sheetID};}    
+            ).forEach(item=>{
             const child=document.createElement("option");
-            child.value=sheetName;
-            child.innerText=sheetName;
+            child.value=item.name;
+            child.innerText=item.name;
+            child.setAttribute("data-detail-sheetid",item.sheetID);
             checkSheetSelector.appendChild(child);   
             });
+        checkSheetSelector.setAttribute("onchange","setSelectedCheckSheet(event,this);");
         checkSheetSelector.classList.remove("hideContainer");
         return ;
     }
     checkSheetSelector.options.selectedIndex=0;
     checkSheetSelector.classList.add("hideContainer");
+    return;
+}
+
+async function setSelectedCheckSheet(event, elem){
+    if(elem.value!="0"){
+        const rawValue = elem.options[elem.options.selectedIndex]
+                         .getAttribute('data-detail-sheetid');
+        elem.setAttribute('data-detail-sheetid', rawValue);
+        return ;
+    }
     return;
 }
 

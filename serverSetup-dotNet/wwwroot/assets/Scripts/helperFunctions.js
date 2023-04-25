@@ -96,6 +96,14 @@ function getKeyValueFromStorage(key){
     return result;
 }
 
+function getLocalOrThenUrl(key){
+	let result = getKeyValueFromStorage(key);
+	if (result == null){
+		return new URLSearchParams(window.location.search).get(key);
+	}
+	return result;
+}
+
 // local cookie functions
 
 async function setCookie(name,value){
@@ -139,7 +147,8 @@ async function digestMessage(message){
 } 
 
 function uuidv4(){
-	return crypto.randomUUID();
+	//return crypto.randomUUID(); // the problem of https required
+	return uuidv4_archive();
 }
 
 function uuidv4_archive() { //ref:https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid 

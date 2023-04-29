@@ -155,11 +155,12 @@ async function saveNewCheckSheetDetails(event,elem){
         },
         fromExisting:fromExistingElement.checked,
         refCheckSheet:{
-            sheetID : refSheetNameElement.getAttribute("data-detail-sheetid"),
+            sheetID : refSheetNameElement.getAttribute("data-detail-sheetid") ? refSheetNameElement.getAttribute("data-detail-sheetid") : -1, 
             model:refModelElement.value,
             sheetName:refSheetNameElement.value,
         },
     };
+    console.log(checkSheetData);
     const result= await postJsonData("/newCheckSheet", checkSheetData,);
     if (result.status ==200){
         closeModal();

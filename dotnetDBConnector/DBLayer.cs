@@ -91,6 +91,14 @@ namespace DbConnectors {
             return dbEntity.SaveChanges();
         }
 
+        public async Task<int> deleteCheckSheet( int id ){
+            var task = dbEntity.Checksheet_Record!
+                                .Where(sheet=>sheet.id==id)
+                                .ExecuteDeleteAsync();
+                            
+            await task;
+            return 1;
+        }
         public async Task<List<CheckSheet>> allUserCheckSheets(){
             var result = new List<CheckSheet>();
             await dbEntity.Checksheet_Record!

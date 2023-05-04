@@ -89,6 +89,36 @@ namespace DbConnectors
             db.UpdateAuthoredSheet(record.stations!, 18).GetAwaiter().GetResult();
 
         }
+        public static void integrateNewCheckSheet(dbOptions opt, string sheetName, string model, string filePath, string fileName) {
+            var db= new DbLayer(opt);
+            var newSheet = new Checksheet_Record();
+            newSheet.model = model;
+            newSheet.sheetName= sheetName;
+            newSheet.status = "active";
+            db.createNewSheet(newSheet,false).GetAwaiter();
+            var reader = new ResultHandler(path:filePath);
+            var content = reader.ReadFile(fileName);
+            List<section> blocks = JsonConvert.DeserializeObject<List<section>>(content)!; 
+            var result = new List<Checksheet_Station>();
+            System.Console.WriteLine(newSheet.id);
+            foreach (var block in blocks){
+                var tempBlock = (Checksheet_Station)block;
+                tempBlock.UID=System.Guid.NewGuid();
+                var i =0;
+                foreach(var _field in tempBlock.fields!){
+                    _field.UID = System.Guid.NewGuid();
+                    _field.stationID = tempBlock.UID;
+                    i++;
+                }
+                result.Add(tempBlock);
+            }
+            var tempResult = new List<section>();
+            foreach(var item in result){
+                tempResult.Add((section)item);
+            }
+            //db.UpdateAuthoredSheet(result, newSheet.id).GetAwaiter();
+            System.Console.WriteLine(JsonConvert.SerializeObject(tempResult));
+        }
         public static void testCheckSheetRetrieval(dbOptions opt,int formId){
             var db = new DbLayer(opt);
             var result = db.getCheckSheetCopy(formId).GetAwaiter().GetResult();
@@ -103,15 +133,27 @@ namespace DbConnectors
             System.Console.WriteLine(stringResult);
         }
 
+        public static void deleteAllCheckSheet(dbOptions opt){
+            var db = new DbLayer(opt);
+            var result = db.allUserCheckSheets().GetAwaiter().GetResult();
+            foreach(var item in result){
+                System.Console.WriteLine(item.sheetID);
+                var response = db.deleteCheckSheet(item.sheetID).GetAwaiter().GetResult(); 
+                System.Console.WriteLine(response);
+            } 
+             
+        }
         public static void Main(string[] args){
             dbOptions opt = new dbOptions {
                 dataSource = "<host name>,<TCP/IP port number>",
-                userID = "server_id",            
-                password = "serverPassword",     
+                userID = "server_id",
+                password = "serverPassword",
                 dbName="db_name"
         }; 
             var test = new System.Guid("de9343c4-7465-42ef-a45b-a2d5195f3b19");
-            updateCheckSheet(opt,18);
+            deleteAllCheckSheet(opt);
+            //integrateNewCheckSheet(opt,"testModelFullSheet", "testModelFull","testData", "K19 - QSK19 ASSEMBLY .json");
+            //updateCheckSheet(opt,18);
             //System.Console.WriteLine(test);
             //getAllCheckSheet(opt);
             //testCheckSheetRetrieval(opt,29);

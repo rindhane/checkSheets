@@ -2,12 +2,12 @@
   <PropertyGroup>
   <!--
     using it as a library
-    <OutputType>Exe</OutputType>
+    <OutputType>Exe</OutputType> //for dotnet run 
     for self-contained : 
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <OutputType>Exe</OutputType>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>

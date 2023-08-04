@@ -143,15 +143,31 @@ namespace DbConnectors
             } 
              
         }
+
+        public static string createScriptOfDbModel(dbOptions opt){
+            var db = new DbLayer(opt);
+            //ref : https://github.com/dotnet/efcore/issues/2943
+            //https://learn.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.storage.irelationaldatabasecreator.generatecreatescript?view=efcore-7.0
+            string fileName = "sql_script.sql";
+            var fileStream = System.IO.File.Create(fileName);
+            var sqlContent = db.dbEntity.Database.GenerateCreateScript();
+            fileStream.Write(System.Text.Encoding.ASCII.GetBytes(sqlContent),0,System.Text.Encoding.UTF8.GetByteCount(sqlContent));
+            fileStream.Close();
+            System.Console.WriteLine($"file:{fileName} was created");
+            return fileName;
+        }
         public static void Main(string[] args){
             dbOptions opt = new dbOptions {
-                dataSource = "<host name>,<TCP/IP port number>",
-                userID = "server_id",
-                password = "serverPassword",
-                dbName="db_name"
+                dataSource = "127.0.0.1,1433",
+                userID = "qdas",            
+                password = "qdas1234",     
+                dbName="QDAS_VALUE_DATABASE"
         }; 
             var test = new System.Guid("de9343c4-7465-42ef-a45b-a2d5195f3b19");
-            deleteAllCheckSheet(opt);
+            var sqlString = createScriptOfDbModel(opt);
+            
+            
+            //deleteAllCheckSheet(opt);
             //integrateNewCheckSheet(opt,"testModelFullSheet", "testModelFull","testData", "K19 - QSK19 ASSEMBLY .json");
             //updateCheckSheet(opt,18);
             //System.Console.WriteLine(test);

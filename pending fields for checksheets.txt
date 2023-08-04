@@ -1,2 +1,6 @@
-only instruction/ no input
-LOV dropdown field 
+pending points : 
+    type of field : only instruction/ no input
+    check the sheet : LOV dropdown field
+Functionalities : 
+    <critical>operator to only login when checksheet and operation have been selected 
+

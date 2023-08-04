@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json; // to serialize list;
 
 namespace DbConnectors.Models {
-
+//these classes are for interfacing with API/UI for data transfer 
     public class CheckSheet{
         
         public string? model {get;set;}
@@ -164,9 +164,9 @@ namespace DbConnectors.Models {
     }
 
     public enum inspectionClass{
-        critical,
-        major,
-        minor,
+        critical=0,
+        major=1,
+        minor=2,
     }
 
 }

@@ -71,13 +71,20 @@ namespace App.RouteBindings
       await context.Response.WriteAsync("updated");
     }
 
-    public static async Task storeFormData(HttpContext context, HttpRequest request, IDataHandler formUpdateHandler){
+    public static async Task storeFormData(HttpContext context, HttpRequest request, IDataHandler formUpdateHandler, DbLayer db){
       //var data= new updateCheckSheet();
       //string bodyString = httpHandlers.getRequestBody(request.Body);
       //System.Console.WriteLine(bodyString);
-      var data = await context.Request.ReadFromJsonAsync<singleFormUpdate>();
-      var result = formUpdateHandler.updateFormData(data!);
+      var dataNew = await context.Request.ReadFromJsonAsync<singleFormUpdate2>();
+      var result = formUpdateHandler.updateFormData(dataNew!);// correctionPending: writing on to a file for a test
+      var result2 = db.updateValueEntry(dataNew!.formUpdates!);
       await context.Response.WriteAsync(result.ToString());
+    }
+
+    public static async Task loadFormData(HttpContext context, HttpRequest request, DbLayer db){
+      var formSearchRequest = await request.ReadFromJsonAsync<formSNSearch>();
+      var result = await db.getValueForFormSN(formSearchRequest!.formSN!);
+      await context.Response.WriteAsJsonAsync<List<Checksheet_Values>>(result);
     }
 
     public static async Task test(HttpContext context, HttpRequest request, IFileHandler fileHandler){

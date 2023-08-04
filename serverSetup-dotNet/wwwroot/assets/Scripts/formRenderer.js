@@ -183,7 +183,7 @@ function generateDOMattributes(txt){
     classMap.set("authorSection",["sectionItem", "itemMedium"]);
     classMap.set("numerical",[""]);
     classMap.set("yesNoSelector",[""]);
-    classMap.set("classContainer", ["inspectionParam", "inspectionHelperSmall",]);
+    classMap.set("classContainer", ["inspectionParam", "inspectionHelperSmall","statusElement"]);
     classMap.set("specContainer",["inspectionParam", "inspectionHelper",]);
     classMap.set("multipleSelector",["multipleSelectorContainer",]);
     const DomMap = new Map();
@@ -234,10 +234,14 @@ async function generateSection(itemSection)
     )
     //add inspection field Element
     addFieldElementsToSection(selfElem,itemSection["childs"], index);
-    selfElem.appendChild(statusElement());
+    addStatusElement(selfElem,itemSection["childs"]);
+    //selfElem.appendChild(statusElement());
     if(authMode.active){
         selfElem.appendChild(authorSegment(index));
     }
+    selfElem.addEventListener('evaluation',function(e,elem=this){
+        evaluationReceiver(e,elem);
+    });
     return selfElem;
 }
 
@@ -297,11 +301,20 @@ function generateInspectionClassification(classType){
     return elem;
 }
 
-function valueContainerDataTagAdd(valueContainer){
+function valueContainerDataTagAdd(valueContainer, fieldType){
     valueContainer.setAttribute("data-detail-input",null);
+    valueContainer.setAttribute('data-detail-inputtype',fieldType);
     assignDataUpdateFunction(valueContainer);
     return valueContainer;
 }
+
+async function addStatusElement(elem, childArray){
+    const statusContainer = statusElementContainer(); 
+    for(i=0;i<childArray.length;i++){
+        statusContainer.appendChild(statusElement(i));
+    }
+    elem.appendChild(statusContainer);
+} 
 
 function prepareParameterElement(inspectionContainer, fieldTag){
     inspectionContainer.setAttribute("data-detail-name","operation");
@@ -321,6 +334,8 @@ async function assignDataUpdateFunction(valueContainer){
 
 async function setInputUpdateOnParentDataTag(event, elem){
     elem.setAttribute("data-detail-input",elem.value);
+    await evaluateElemForStatus(elem);
+    dispatchEvaluationOnInspectionValue(event, elem);
     return ;
 }
 
@@ -336,14 +351,14 @@ function generateInspectionElement(fieldTag){
     if(fieldTag["fieldType"]=="text"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("textInput");
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
     if(fieldTag["fieldType"]=="numerical"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("numerical");
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         valueContainer.setAttribute("type","number");
         valueContainer.setAttribute("min", fieldTag["minCheck"]);
         valueContainer.setAttribute("max", fieldTag["maxCheck"]);
@@ -354,14 +369,14 @@ function generateInspectionElement(fieldTag){
     if(fieldTag["fieldType"]=="yesNoSelector"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("yesNoSelector");
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
     if(fieldTag["fieldType"]=="multipleSelector"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("multipleSelector");
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         const elemTemplate= document.getElementById("multipleSelector View subElement").innerHTML.slice();
         const name =AlphaNumeric(10);
         fieldTag["multipleOptions"].forEach(tag => {
@@ -380,7 +395,7 @@ function generateInspectionElement(fieldTag){
         let htmlResult=htmlTemplate.replace("moverVal=-1",`moverVal=${-parseFloat(fieldTag["addDecrement"])}`);
         htmlResult=htmlResult.replace("moverVal=1",`moverVal=${parseFloat(fieldTag["addIncrement"])}`);
         const valueContainer = htmlToElement(htmlResult);
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         valueContainer.children[1].value= parseFloat(fieldTag["meanValue"]);//set the mean value;
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
@@ -393,7 +408,7 @@ function generateInspectionElement(fieldTag){
         imgElem.style="height:52px;width:52px; border: 2px outset black; cursor:pointer;";
         imgElem.setAttribute("onclick","displayPicOnModal(event,this)");
         const valueContainer=produceElement("textInput");
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer1.appendChild(imgElem);
         inspectionContainer2.appendChild(valueContainer);
@@ -401,7 +416,7 @@ function generateInspectionElement(fieldTag){
     if (fieldTag["fieldType"]=="externalSourceField"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("textInput");
-        valueContainerDataTagAdd(valueContainer);
+        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
@@ -430,8 +445,15 @@ function authorSegment(index){
     return parentElem;
 }
 
-function statusElement(){
-    let statHtml='<div class="sectionItem itemMedium"> Not Validated </div>';
+function statusElementContainer(){
+    let statHtml=
+                `<div class="sectionItem statusSubSection itemMedium" data-detail-status="null" ></div>`
+    return htmlToElement(statHtml);
+}
+function statusElement(index){
+    let statHtml=`
+                <div class="statusElement" data-detail-status="null"  data-detail-status-index="${index}"> No Input yet </div>
+                </div>`;
     return htmlToElement(statHtml);
 }
 function sectionDividerElementAuthoring(index, htmlString)
@@ -494,9 +516,9 @@ async function renderForm(){
 }
 
 async function getCheckSheetJSONDataFromBackend(){
-    const model = new URLSearchParams(window.location.search).get("model");
-    const checkSheetName= new URLSearchParams(window.location.search).get("sheet");
-    const sheetID = new URLSearchParams(window.location.search).get("sid");
+    const model = getLocalOrThenUrl("model");
+    const checkSheetName= getLocalOrThenUrl("sheet"); //new URLSearchParams(window.location.search).get("sheet");
+    const sheetID = getLocalOrThenUrl("sid");//new URLSearchParams(window.location.search).get("sid");
     //await getCheckSheetData(model,checkSheetName);
     await getCheckSheetData(sheetID, model,checkSheetName);
 }
@@ -991,13 +1013,6 @@ async function closePicModalFunction(){
     modalContainer.innerHTML="";
 }
 
-async function doSomething (event, elem,){
-    console.log(elem);
-    console.log(event);
-    console.log(this);
-    
-}
-
 async function modifyColor(event,elem){
     const collection = elem.children;
     for (i=0;i<collection.length;i++){
@@ -1107,9 +1122,7 @@ async function reworkSectionConfiguratorBaseTemplate(){
     return htmlToElement(htmlString);
 }
 
-async function doSomething(event,elem){
-    console.log(event.target.value,elem);
-}
+
 async function OnCheckRework(event, elem){
     const element = event.target;
     const parentElem=element.parentElement;
@@ -1304,17 +1317,17 @@ async function checkListHeaderGeneratedElement(){
             </div>
             <div class="headerRowItem">
                 <label for="ESN">Model Number</label>
-                <input class="headerInput"  type="text" placeholder="Model Number">
+                <input class="headerInput" disabled id="ModelNum" type="text" placeholder="Model Number">
             </div>
         </div>
         <div class="headerRow">
             <div class="headerRowItem">
                 <label for="order">Shop Order</label>
-                <input class="headerInput"  type="text" placeholder="order Number">
+                <input class="headerInput" disabled id="orderNum" type="text" placeholder="order Number">
             </div>
             <div class="headerRowItem">
                 <label for="date">Date of Acceptance</label>
-                <input class="headerInput"  type="text" placeholder="Date Entry">
+                <input class="headerInput" disabled id="DateEntry" type="text" placeholder="Date Entry">
             </div>
         </div>
     </div>
@@ -1323,7 +1336,15 @@ async function checkListHeaderGeneratedElement(){
 }
 async function populateHeader(){
     const ESNInputValue = document.getElementById("ESNInput");
+    const dateTimeBlock = document.getElementById("DateEntry");
+    const ModelNum = document.getElementById("ModelNum");
+    const orderNum = document.getElementById("orderNum");
+    const pageTopHeader = document.getElementById('pageTopHeader');
+    dateTimeBlock.value=getISOTimeStringWithOffset();
+    ModelNum.value = getLocalOrThenUrl("model");
+    orderNum.value= "CO123";
     ESNInputValue.value=AlphaNumeric(8);
+    pageTopHeader.innerHTML="CheckList: "+ `${getLocalOrThenUrl('sheet')}`+` (Model: ${ModelNum.value})`;
 }
 
 
@@ -1387,8 +1408,10 @@ async function operatorLogin(){
         const modelSelector=modalContentTemplate.querySelector('select[name="modelSelection"]');
         getCheckSheetInventory().then(
             allSheetArray=>{
-                const modelSet = new Set(allSheetArray.map( item => {
-                    return item.status;       
+                const modelSet = new Set(allSheetArray
+                                            .filter(item=>item.status=='active')
+                                            .map( item => {
+                                                return item.model;       
                 }));
                 createOptionElements(modelSelector, modelSet, "Choose Model");
             }     
@@ -1416,7 +1439,7 @@ function generateLoginTemplate(){
                     <label for="issueType">
                         Enter your WWID
                     </label>
-                    <input type="text" class="inputLarge" id="Model_Details">
+                    <input type="text" class="inputLarge" id="WWID">
                 </div>
             </div>
             <div class="modalSection">
@@ -1424,7 +1447,7 @@ function generateLoginTemplate(){
                     <label for="issueType">
                         Enter login password
                     </label>
-                    <input type="password" class="inputLarge" id="Name_CheckSheet">
+                    <input type="password" class="inputLarge" id="login_password">
                 </div>
             </div>
             <div class="modalSection">
@@ -1453,52 +1476,69 @@ function generateLoginTemplate(){
     return htmlToElement(htmlString);
 }
 
-async function activateCheckSheetOption(event,modelSelectElem){
-    const modelSelectorContainer = modelSelectElem.parentElement;
-    let zeroOption, checkSheetSelector, CHECKSHEETARRAY ; 
-    if(modelSelectElem.name=="modelSelection") {
+async function activateCheckSheetOption(event,currentSelectorElem){
+    const modelSelectorContainer = currentSelectorElem.parentElement;
+    let zeroOption, linkedSelectorElem, optionResultArray ; 
+    if(currentSelectorElem.name=="modelSelection") {
         zeroOption = "CheckSheet";
-        checkSheetSelector= modelSelectorContainer.querySelector('select[name=checkSheetSelection]');
+        linkedSelectorElem= modelSelectorContainer.querySelector('select[name=checkSheetSelection]');
         const sheetInventory = await getCheckSheetInventory();
-        CHECKSHEETARRAY =  sheetInventory.filter(modelSheets=>modelSheets.status==modelSelectElem.value)
-                                             .map(sheet=>sheet.shortDesc);
+        optionResultArray =  sheetInventory
+        .filter(modelSheets=>modelSheets.status=='active')
+        .filter(modelSheets=>modelSheets.model==currentSelectorElem.value)
+                                             .map(sheet=>{ return {name:sheet.sheetName , sheetID:sheet.sheetID};});
     }
-    if(modelSelectElem.name=="checkSheetSelection"){
+    if(currentSelectorElem.name=="checkSheetSelection"){
         zeroOption="Operation Station";
         const model = modelSelectorContainer.querySelector('select[name="modelSelection"]');
-        checkSheetSelector= modelSelectorContainer.querySelector('select[name=checkSheetOperationSelection]');
-        const sheetMasterArray = await getCheckSheetData(model.value,modelSelectElem.value);
-        CHECKSHEETARRAY = sheetMasterArray.map(sheetSection=>sheetSection.descText);
+        linkedSelectorElem= modelSelectorContainer.querySelector('select[name=checkSheetOperationSelection]');
+        const sheetId = currentSelectorElem.options[currentSelectorElem.options.selectedIndex].getAttribute("data-id-sheetid");
+        if(currentSelectorElem.value!="0"){
+            const sheetMasterArray = await getCheckSheetData(sheetId,model.value,currentSelectorElem.value);
+            optionResultArray = sheetMasterArray.map(sheetSection=>{ return {name:sheetSection.descText};});
+            if(optionResultArray.length>0){
+                optionResultArray.push({name:"Rework"});
+            }
+        }
+        
     }
-    if(modelSelectElem.value!="0")
+    if(currentSelectorElem.value!="0")
     {      
-        checkSheetSelector.innerHTML="";
+        linkedSelectorElem.innerHTML=""; //remove existing data
         const initialOption = htmlToElement(`<option value="0" selected> Choose ${zeroOption}</option>`);
-        checkSheetSelector.appendChild(initialOption);
-        CHECKSHEETARRAY.forEach(sheetName=>{
+        linkedSelectorElem.appendChild(initialOption);
+        optionResultArray.forEach(item=>{
             const child=document.createElement("option");
-            child.value=sheetName;
-            child.innerText=sheetName;
-            checkSheetSelector.appendChild(child);   
+            child.value=item.name;
+            child.innerText=item.name;
+            if (linkedSelectorElem.name=='checkSheetSelection'){
+                child.setAttribute("data-id-sheetID", item.sheetID);     
+            }
+            linkedSelectorElem.appendChild(child);
             });
-        checkSheetSelector.classList.remove("hideContainer");
+        linkedSelectorElem.classList.remove("hideContainer");
         return ;
     }
-    checkSheetSelector.value="0"; //checkSheetSelector.options.selectedIndex=0;
-    if(modelSelectElem.name=="modelSelection"){
-            checkSheetSelector.onchange();
+    linkedSelectorElem.value="0"; //linkedSelectorElem.options.selectedIndex=0;
+    if(currentSelectorElem.name=="modelSelection"){
+            linkedSelectorElem.onchange();
     }
-    checkSheetSelector.classList.add("hideContainer");
+    linkedSelectorElem.classList.add("hideContainer");
     return;
 }
 
 async function operatorLoginDetails(event,buttonElem){
-    storeInLocalStorage("operatorWWID","temp-operator");
+    storeInLocalStorage("operatorWWID","temp-operator"); //correctionPending : this should be temproary storage
     const modalElem= buttonElem.parentElement;
     const model = modalElem.querySelector('select[name="modelSelection"]').value;
-    const checkSheet= modalElem.querySelector('select[name=checkSheetSelection]').value;
+    const checkSheet= modalElem.querySelector('select[name=checkSheetSelection]');
+    const sheetID = checkSheet.options[checkSheet.options.selectedIndex].getAttribute("data-id-sheetid")
     const operation= modalElem.querySelector('select[name=checkSheetOperationSelection]').value;
-    window.location.href=`/checkSheet?model=${model}&sheet=${checkSheet}&mode=operator&filter=${operation}`;
+    window.location.href=`/checkSheet?sid=${sheetID}&model=${model}&sheet=${checkSheet.value}&mode=operator&filter=${operation}`;
+    storeInLocalStorage('model', model);
+    storeInLocalStorage('sheet', checkSheet.value);
+    storeInLocalStorage('sid', sheetID);
+    storeInLocalStorage('filter',operation);
     renderForm();
     modalContainer.style.display='none';  
 }
@@ -1507,26 +1547,49 @@ async function operatorLoginDetails(event,buttonElem){
 //checkSheet Save functions:
 async function saveFieldsForm(event, buttonElem){
     const formContainer = buttonElem.parentElement;
-    const result = Array.from(formContainer.querySelectorAll("div.sectionContainer"))
+    const ESN = document.getElementById("ESNInput").value;
+    const dateTimeBlock = document.getElementById("DateEntry").value;
+    const pageTopHeader = document.getElementById('pageTopHeader');
+    const paramSets = new Array();
+    const result = 
+        Array.from(formContainer.querySelectorAll("div.sectionContainer"))
         .filter(
                 (sectionContainer)=>sectionContainer.getAttribute('data-index')!=null)
-        .map((sectionContainer)=>{
+        .forEach((sectionContainer)=>{
             const stationName = sectionContainer.querySelector('div[data-detail-name="station"]').innerText;
-            const paramSets = new Array();
+            //const paramSets = new Array(); // this construction is now passed to current function's block scope
             sectionContainer.querySelector("div.inspectionSubSection")
                             .querySelectorAll("div.subSectionItem")
                             .forEach(subSectionItem =>{
-                                const paramName = subSectionItem.querySelector('[data-detail-name="operation"]').innerText;
+                                const paramName = subSectionItem.querySelector('[data-detail-name="operation"]').getAttribute("data-uid");
                                 const inputValue = subSectionItem.querySelector('[data-detail-input]').getAttribute("data-detail-input");
-                                paramSets.push({parameterName:paramName, inputValue:inputValue});
+                                if(inputValue!=null && inputValue!="" && inputValue!="null") {
+                                    paramSets.push(
+                                        {   fieldID:paramName, 
+                                            fieldValue:inputValue,
+                                            dateTime : dateTimeBlock,
+                                            operatorID: getLocalOrThenUrl("operatorWWID"),
+                                            formSN : ESN,
+                                            stationID : getLocalOrThenUrl("filter"),
+                                        });
+                                }
                             });//closing for each 
+            // below code is not needed because forEach is utilized instead of Map
             //returning map values
-            return {stationName:stationName,valueSets:paramSets};
+            //return {stationName:stationName,valueSets:paramSets};
+            //return paramSets;
         });
-    const ESN = document.getElementById("ESNInput").value;
-    const response = await postJsonData("/formDataUpdate",{ ESN:ESN , formUpdates:result},);
+    const sheetID = getLocalOrThenUrl('sid');
+    const payload = { ESN:ESN, sheetId: sheetID, formUpdates:paramSets};
+    const response = await postJsonData("/formDataUpdate",payload,);
+    /* note : not needed anymore since handled by the location.reload();
     clearField(buttonElem);
-    populateHeader();
+    //populateHeader();
+    */
+    //console.log(response);
+    let UIinput= window.confirm("Data Successfully Submitted !");
+    location.reload(true); //https://www.freecodecamp.org/news/javascript-refresh-page-how-to-reload-a-page-in-js/
+    
     return result;
 } 
 
@@ -1548,4 +1611,15 @@ async function clearField(buttonElem){
         });
     return result;
 
+}
+
+async function onBodyLoad(){ 
+    console.log("body loaded");
+}
+
+async function LogOutUser(event, elem){
+    if(elem.value=="logout"){
+        localStorage.clear();
+        location.reload();
+    }
 }

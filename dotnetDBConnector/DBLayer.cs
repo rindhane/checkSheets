@@ -278,6 +278,7 @@ namespace DbConnectors {
                         var temp_dbEntity_internal = spawnNewContext();
                         var tempField = new Checksheet_Field();
                         if(!fieldSet.TryGetValue(fieldInDB, out tempField)){
+                            System.Console.WriteLine("does it run");
                             temp_dbEntity_internal.Checksheet_Fields!.
                             //Remove(fieldInDB);
                             Where(f=>f.UID==fieldInDB.UID)
@@ -287,7 +288,7 @@ namespace DbConnectors {
                                 System.Console.WriteLine(fieldInput.UID);
                             }).GetAwaiter();
                             */
-                            .ExecuteDeleteAsync().GetAwaiter();
+                            .ExecuteDelete();
                             temp_dbEntity_internal.SaveChanges();
                         }
                     });
@@ -312,6 +313,19 @@ namespace DbConnectors {
             );
             await Task.Delay(0);
             return ;
+        }
+        public async Task updateValueEntry(List<Checksheet_Values>dataValues){
+            var db = spawnNewContext (); 
+            await db.Checksheet_Values!.AddRangeAsync(dataValues);
+            await db.SaveChangesAsync();
+            return ;
+        }
+
+        public async Task<List<Checksheet_Values>> getValueForFormSN(string formSN) {
+            var db = spawnNewContext();
+            return await db.Checksheet_Values!.Where(
+                val=>val.formSN==formSN)
+                .ToListAsync();
         }
 
         public void SaveChangesFailureEvent(object? sender, SaveChangesFailedEventArgs e){

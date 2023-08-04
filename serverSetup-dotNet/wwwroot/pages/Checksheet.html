@@ -3,16 +3,17 @@
 <head>
     <link rel="styleSheet" type="text/css" href="/assets/CSS/topFilter.css">
     <link rel="stylesheet" type="text/css" href="/assets/CSS/main.css">
+    <link rel="stylesheet" type="text/css" href="/assets/CSS/checkSheetHeader.css">
     <title>QDas Checksheets</title>
     <link rel="icon" href="/favicon.png">
 </head>
-<body onload="populateHeader();">
+<body onload="onBodyLoad();">
     <header>
         <div class="logo-container">
             <img src="/assets/img/client.png" style="max-height:50px;max-width:50px;" alt="logo">  
         </div>
         <div class="header-title">
-            <div class="titleContent">Sample CheckList</div> 
+            <div class="titleContent" id="pageTopHeader">Sample CheckList</div> 
         </div>
     </header>
     <div class="optionsContainer ">
@@ -50,6 +51,35 @@
                     <option value="SK78" selected>OP-60: Al Blasting</option>
                 </select>
             </div>
+        </div>
+        <div class="UserSignedIn">
+            <div class="menuContainer hideContainer">
+                <label class="menuLabel" for="operationSelector"> SignedIn: </label>
+                &nbsp;
+                <select class="userLoggedIn" onchange="LogOutUser(event, this);">
+                    <option value="user">User</option>
+                    <option value="logout"> Logout</option>
+                </select>
+            </div>
+            <script id="checkOn">
+                let obj = document.getElementById('checkOn');
+                let mode= new URLSearchParams(window.location.search).get("mode");
+                let userDetail = null;
+                if(mode=='author'){
+                    userDetail=localStorage.getItem('authorID');
+                }
+                if(userDetail==null && mode=='operator'){
+                    userDetail=localStorage.getItem("operatorWWID");
+                }
+                if(userDetail){ //showing LoggedIn user detail
+                    let menuContainer= obj.parentElement.children[0];
+                    let selectorElem= menuContainer.querySelector('select.userLoggedIn');
+                    selectorElem.children[0].innerHTML=userDetail; //placing userName in first option;
+                    menuContainer.classList.remove('hideContainer');
+                }
+                //obj.parentElement.querySelector()
+            
+            </script>
         </div>
     </div>
     <!--
@@ -548,6 +578,8 @@
     <script src="/assets/Scripts/preloadUtilities.js"></script>
     <script src="/assets/Scripts/helperFunctions.js"></script>
     <script src="/assets/Scripts/backendCalls.js"></script>
+    <script src="/assets/Scripts/loadInspectionData.js"></script>
+    <script src="/assets/Scripts/valueEvaluationModule.js"></script>
     <script defer src="/assets/Scripts/formRenderer.js"></script>
 </body>
 </html>

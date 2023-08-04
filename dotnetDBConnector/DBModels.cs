@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations; // to access Key Attribute
 
 namespace DbConnectors.Models {
-
+//these classes are for db storage objects
 public class Checksheet_Record : System.IEquatable<Checksheet_Record>{
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -251,6 +251,28 @@ public class Checksheet_Field : System.IEquatable<Checksheet_Field> {
       return ! (obj1.Equals(obj2));
    }
         
-    }
+}
+
+public class Checksheet_Values  {
+    
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int UID {get;set;}
+    public Checksheet_Field? field {get; set;}
+
+    [ForeignKey("field")]
+    public System.Guid fieldID{get;set;} 
+
+    public string? fieldValue {get;set;}
+
+    public System.DateTime dateTime {get;set;}
+
+    public string? formSN {get;set;}
+
+    public string? operatorID {get;set;}
+
+    public string? stationID {get;set;}
+}
+
 
 }

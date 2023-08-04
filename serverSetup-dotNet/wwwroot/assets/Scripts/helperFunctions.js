@@ -1,3 +1,10 @@
+async function doSomething (event, elem,){
+    console.log(elem);
+    console.log(event);
+    console.log(this);
+    
+}
+
 function applyAttributes(elem,classArray){
     let classString = "";
     for (let i=0; i <classArray.length; i++){
@@ -34,6 +41,15 @@ function htmlToMultiElement(htmlString){
 		template.innerHTML = html;
 		return template.content.children;
 }
+//get timestring with localtimezone offset 
+
+function getISOTimeStringWithOffset()
+{//ref : https://stackoverflow.com/questions/10830357/javascript-toisostring-ignores-timezone-offset
+	let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    let localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+	return localISOTime;
+}
+
 
 
 //preparing payloads 
@@ -100,6 +116,14 @@ function getLocalOrThenUrl(key){
 	let result = getKeyValueFromStorage(key);
 	if (result == null){
 		return new URLSearchParams(window.location.search).get(key);
+	}
+	return result;
+}
+
+function getUrlOrThenLocal(key){
+	let result = new URLSearchParams(window.location.search).get(key); 
+	if (result == null){
+		return getKeyValueFromStorage(key);
 	}
 	return result;
 }

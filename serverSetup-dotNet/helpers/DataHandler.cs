@@ -2,7 +2,8 @@
 using System.Text; //to get the encoding.UTF8
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting; //to access WebHostEnvironment interface;
-using Newtonsoft.Json; // to handle json strings
+using Newtonsoft.Json; // to handle json string
+using DbConnectors.Models; // need access to class CheckSheet_Values
 
 namespace FileHandler { 
 
@@ -12,12 +13,21 @@ namespace FileHandler {
         public string getCheckSheet(checkSheet dat);
         public bool updateFormData(singleFormUpdate update);
         //public bool createNewCheckSheet(createCheckSheet dat);
+
+        public bool updateFormData(singleFormUpdate2 update);
     }
 
     public record singleFormUpdate {
         public string? ESN {get;set;}
         public List<sectionValues>? formUpdates {get;set;}
 
+    }
+
+    public record singleFormUpdate2{
+        public string? ESN {get;set;}
+        public string? sheetID {get;set;}
+
+        public List<Checksheet_Values>? formUpdates {get;set; }
     }
 
     public record sectionValues {
@@ -68,6 +78,13 @@ namespace FileHandler {
         }
         
         public bool updateFormData(singleFormUpdate update){
+            string fileName =  update.ESN!.ToString()+".json";
+            //string oldContent = ReadFile(fileName);
+            writeFile(fileName, JsonConvert.SerializeObject(update.formUpdates));
+            return true;
+        }
+
+        public bool updateFormData(singleFormUpdate2 update){
             string fileName =  update.ESN!.ToString()+".json";
             //string oldContent = ReadFile(fileName);
             writeFile(fileName, JsonConvert.SerializeObject(update.formUpdates));

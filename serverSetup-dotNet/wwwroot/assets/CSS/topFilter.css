@@ -7,12 +7,24 @@
     border-radius: 20px;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px; /* ref: https://getcssscan.com/css-box-shadow-examples */
     background-color: lightgrey;
-    justify-content: space-around;
+    justify-content:center;
 }
 .optionsMenu{
     display:flex;
     flex-basis: 25%;
     flex-shrink: 1;
+    margin-left: auto; /*https://stackoverflow.com/questions/32551291/in-css-flexbox-why-are-there-no-justify-items-and-justify-self-properties/33856609#33856609*/
+}
+.UserSignedIn{
+    display: flex;
+    align-self: center;
+    margin-left: auto; /*https://stackoverflow.com/questions/32551291/in-css-flexbox-why-are-there-no-justify-items-and-justify-self-properties/33856609#33856609*/
+
+}
+.userLoggedIn{
+    display: flex;
+    appearance: none;
+    height: 100%;
 }
 .menuContainer{
     display: flex;

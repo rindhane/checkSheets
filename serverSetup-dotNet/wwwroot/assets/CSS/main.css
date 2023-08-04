@@ -162,6 +162,15 @@ footer{
     align-items: start;
     /*flex-grow:2;*/
 }
+.statusSubSection{
+    display:flex;
+    flex-direction: column;
+    align-items: start;
+    /*flex-grow:2;*/
+}
+.statusElement{
+    min-height: 60px;
+}
 
 
 .itemSmall{

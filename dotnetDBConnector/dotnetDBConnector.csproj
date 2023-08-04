@@ -1,4 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk"
+  TreatAsLocalProperty="SelfContained">
+  <!--
+    Ref: https://learn.microsoft.com/en-us/visualstudio/msbuild/project-element-msbuild?view=vs-2022
+    Ref: https://stackoverflow.com/questions/58810740/is-it-possible-to-configure-the-csproj-so-that-it-overrides-the-self-contained
+  -->
   <PropertyGroup>
   <!--
     using it as a library
@@ -11,6 +16,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!--
+      ref: https://stackoverflow.com/questions/58810740/is-it-possible-to-configure-the-csproj-so-that-it-overrides-the-self-contained
+    -->
+    <SelfContained>True</SelfContained>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.0" />

@@ -10,4 +10,8 @@ namespace JsonResponseStruct{
         public bool fromExisting {get; set;}
         public CheckSheet? refCheckSheet {get; set;} 
     }
+
+    public record formSNSearch{
+        public string? formSN {get;set;}
+    }
 }

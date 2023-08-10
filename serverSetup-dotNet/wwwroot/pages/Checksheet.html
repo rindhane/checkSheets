@@ -4,6 +4,7 @@
     <link rel="styleSheet" type="text/css" href="/assets/CSS/topFilter.css">
     <link rel="stylesheet" type="text/css" href="/assets/CSS/main.css">
     <link rel="stylesheet" type="text/css" href="/assets/CSS/checkSheetHeader.css">
+    <script src="/assets/Scripts/helperFunctions.js"></script>
     <title>QDas Checksheets</title>
     <link rel="icon" href="/favicon.png">
 </head>
@@ -63,7 +64,8 @@
             </div>
             <script id="checkOn">
                 let obj = document.getElementById('checkOn');
-                let mode= new URLSearchParams(window.location.search).get("mode");
+                let mode = getUrlOrThenLocal("mode");
+                //let mode= new URLSearchParams(window.location.search).get("mode");
                 let userDetail = null;
                 if(mode=='author'){
                     userDetail=localStorage.getItem('authorID');
@@ -317,6 +319,12 @@
                 &nbsp;&nbsp;&nbsp;
                 <label>decrement by:</label>
                 <input type="number" data-field-input="answer">
+                <br/>
+                <label>USL Bound:</label>
+                <input type="number" data-field-input="answer">
+                &nbsp;&nbsp;&nbsp;
+                <label>LSL Bound:</label>
+                <input type="number" data-field-input="answer">
             </div>
             <div class="specLimit">
                 <label> 
@@ -419,11 +427,11 @@
                 https://stackoverflow.com/questions/45396280/customizing-increment-arrows-on-input-of-type-number-using-css
             -->
             <button onclick="incrementDecrement(event, this, moverVal=-1)" >
-                <img src="/assets/img/icons/minus.svg">
+                <img class="btnClickImg" src="/assets/img/icons/minus.svg">
             </button>
             <input  name="quantity" type="number">
             <button onclick="incrementDecrement(event, this, moverVal=1)">
-                <img src="/assets/img/icons/add.png">
+                <img class="btnClickImg" src="/assets/img/icons/add.png">
             </button>
         </div>
     </div>
@@ -576,7 +584,6 @@
         </div>
     </footer>
     <script src="/assets/Scripts/preloadUtilities.js"></script>
-    <script src="/assets/Scripts/helperFunctions.js"></script>
     <script src="/assets/Scripts/backendCalls.js"></script>
     <script src="/assets/Scripts/loadInspectionData.js"></script>
     <script src="/assets/Scripts/valueEvaluationModule.js"></script>

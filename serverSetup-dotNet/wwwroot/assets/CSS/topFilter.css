@@ -46,3 +46,9 @@ select.optionSelectorChild{
     width: auto;
     object-fit: scale-down;
 }
+.highlightError{
+    background-color: coral;
+}
+.highlightNormal{
+    background-color: var(--background-color);
+}

@@ -178,10 +178,10 @@ function generateDOMattributes(txt){
     classMap.set("fieldSubSection",["subSectionItem"]);
     classMap.set("inspectionContainer",["inspectionParam"]);
     classMap.set("inspectionName",[""]); //not used since textNode has to be used
-    classMap.set("textInput",[""]);
+    classMap.set("textInput",["inputField"]);
     classMap.set("authorImg",["sectionImg"]);
     classMap.set("authorSection",["sectionItem", "itemMedium"]);
-    classMap.set("numerical",[""]);
+    classMap.set("numerical",["inputField"]);
     classMap.set("yesNoSelector",[""]);
     classMap.set("classContainer", ["inspectionParam", "inspectionHelperSmall","statusElement"]);
     classMap.set("specContainer",["inspectionParam", "inspectionHelper",]);
@@ -288,6 +288,7 @@ function generateFieldElement(fieldTag){
 
 function generateInspectionClassification(classType){
     const elem=document.createElement("img");
+    elem.classList.add("chrClass");
     if(classType=='critical'){
         elem.src="/assets/img/icons/fullCircle.svg"
     }
@@ -304,7 +305,7 @@ function generateInspectionClassification(classType){
 function valueContainerDataTagAdd(valueContainer, fieldType){
     valueContainer.setAttribute("data-detail-input",null);
     valueContainer.setAttribute('data-detail-inputtype',fieldType);
-    assignDataUpdateFunction(valueContainer);
+    assignDataUpdateFunction(valueContainer, fieldType);
     return valueContainer;
 }
 
@@ -322,18 +323,27 @@ function prepareParameterElement(inspectionContainer, fieldTag){
     return inspectionContainer;
 }
 
-async function assignDataUpdateFunction(valueContainer){
+async function assignDataUpdateFunction(valueContainer,fieldType){
     if(valueContainer.type=="text" || 
         valueContainer.type=="number" || 
         valueContainer.type=="select-multiple" )
         {
-        valueContainer.setAttribute('oninput', "setInputUpdateOnParentDataTag(event,this);");
+            valueContainer.setAttribute('oninput', "setInputUpdateOnParentDataTag(event,this);");
+        }
+    if (valueContainer.type== "multipleSelector"){
+        valueContainer.setAttribute('oninput',"evaluateElemWithDispatchStatus(event,this);");
     }
     return valueContainer;
 } 
 
 async function setInputUpdateOnParentDataTag(event, elem){
     elem.setAttribute("data-detail-input",elem.value);
+    await evaluateElemForStatus(elem);
+    dispatchEvaluationOnInspectionValue(event, elem);
+    return ;
+}
+
+async function evaluateElemWithDispatchStatus(event, elem){
     await evaluateElemForStatus(elem);
     dispatchEvaluationOnInspectionValue(event, elem);
     return ;
@@ -376,6 +386,7 @@ function generateInspectionElement(fieldTag){
     if(fieldTag["fieldType"]=="multipleSelector"){
         const inspectionName=document.createTextNode(fieldTag["descText"]);
         const valueContainer=produceElement("multipleSelector");
+        valueContainer.type="multipleSelector";
         valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
         const elemTemplate= document.getElementById("multipleSelector View subElement").innerHTML.slice();
         const name =AlphaNumeric(10);
@@ -395,8 +406,10 @@ function generateInspectionElement(fieldTag){
         let htmlResult=htmlTemplate.replace("moverVal=-1",`moverVal=${-parseFloat(fieldTag["addDecrement"])}`);
         htmlResult=htmlResult.replace("moverVal=1",`moverVal=${parseFloat(fieldTag["addIncrement"])}`);
         const valueContainer = htmlToElement(htmlResult);
-        valueContainerDataTagAdd(valueContainer,fieldTag["fieldType"]);
+        valueContainerDataTagAdd(valueContainer.children[1],fieldTag["fieldType"]); //input field is within the value container
         valueContainer.children[1].value= parseFloat(fieldTag["meanValue"]);//set the mean value;
+        valueContainer.children[1].setAttribute("min", fieldTag["minCheck"]);
+        valueContainer.children[1].setAttribute("max", fieldTag["maxCheck"]);
         inspectionContainer1.appendChild(inspectionName);
         inspectionContainer2.appendChild(valueContainer);
     }
@@ -447,7 +460,7 @@ function authorSegment(index){
 
 function statusElementContainer(){
     let statHtml=
-                `<div class="sectionItem statusSubSection itemMedium" data-detail-status="null" ></div>`
+                `<div class="sectionItem statusSubSection itemMedium"></div>`
     return htmlToElement(statHtml);
 }
 function statusElement(index){
@@ -506,8 +519,10 @@ async function populateForm(recordArray, formElem){
 }
 
 async function renderForm(){
-    const mode = new URLSearchParams(window.location.search).get("mode");
-    const filter = new URLSearchParams(window.location.search).get("filter");
+    const mode = getLocalOrThenUrl('mode');
+    const filter = getLocalOrThenUrl('filter');
+    //const mode = new URLSearchParams(window.location.search).get("mode");
+    //const filter = new URLSearchParams(window.location.search).get("filter");
     generateFormAccessories(mode);
     await getCheckSheetJSONDataFromBackend();
     await populateOptionInTopFilter(defaultFilter=filter);
@@ -695,6 +710,8 @@ function generateFieldTag(elem){
         jsonTag["meanValue"]=parseFloat(collectionValue[0].value);
         jsonTag["addIncrement"]=parseFloat(collectionValue[1].value);
         jsonTag["addDecrement"]=parseFloat(collectionValue[2].value);
+        jsonTag["maxCheck"]=parseFloat(collectionValue[3].value);
+        jsonTag["minCheck"]=parseFloat(collectionValue[4].value);
     }
     if(elem.getAttribute("data-field-type")=="pictureField"){
         jsonTag["typ"]="field",
@@ -869,7 +886,9 @@ async function fillValuesToPopulatedElementDom(elem,JsonObj)
         const inputContainer=getDepthElem(elem,[1],null);
         inputContainer.children[1].value=JsonObj["meanValue"];
         inputContainer.children[3].value=JsonObj["addIncrement"];
-        inputContainer.children[5].value=JsonObj["addDecrement"]; 
+        inputContainer.children[5].value=JsonObj["addDecrement"];
+        inputContainer.children[8].value=JsonObj["maxCheck"];
+        inputContainer.children[10].value=JsonObj["minCheck"]; 
     }
     if(JsonObj["fieldType"]=="pictureField"){
         setDepthvalue(elem,[0],'input[data-field-input="answer"]',JsonObj["descText"]);
@@ -1018,6 +1037,7 @@ async function modifyColor(event,elem){
     for (i=0;i<collection.length;i++){
         if(collection[i].children[0].checked){
             collection[i].classList.add("multipleSelectorLabelSelected");
+            elem.setAttribute('data-detail-input',collection[i].innerText);
             continue;
         }
         collection[i].classList.remove("multipleSelectorLabelSelected");
@@ -1040,6 +1060,9 @@ async function storeUploadFile(event, elem){
 async function incrementDecrement(event, elem, moverVal=1){
     const inputElem = elem.parentNode.querySelector('input[type=number]');
     inputElem.value=parseFloat(inputElem.value)+moverVal;
+    //also add this value on parentElement : 
+    inputElem.setAttribute('data-detail-input', inputElem.value);
+    inputElem.dispatchEvent(new Event("input",{bubbles:true})); //Ref: https://stackoverflow.com/questions/35659430/how-do-i-programmatically-trigger-an-input-event-without-jquery
     return true;
 }
 
@@ -1539,10 +1562,28 @@ async function operatorLoginDetails(event,buttonElem){
     storeInLocalStorage('sheet', checkSheet.value);
     storeInLocalStorage('sid', sheetID);
     storeInLocalStorage('filter',operation);
+    storeInLocalStorage('mode','operator');
     renderForm();
     modalContainer.style.display='none';  
 }
 
+
+function checkFormSaveReadiness(){
+    let result = true;
+    for (let elem of document.querySelectorAll('div[data-detail-status]') ) 
+    {
+        if(elem.innerText=="No Input yet"
+        || elem.innerText=="No Input")
+        {
+            console.log(elem);
+            elem.classList.remove('highlightNormal');
+            elem.classList.add('highlightError');
+            result = false; 
+            break;
+        };
+    }
+    return result;
+}
 
 //checkSheet Save functions:
 async function saveFieldsForm(event, buttonElem){
@@ -1551,6 +1592,9 @@ async function saveFieldsForm(event, buttonElem){
     const dateTimeBlock = document.getElementById("DateEntry").value;
     const pageTopHeader = document.getElementById('pageTopHeader');
     const paramSets = new Array();
+    if (!checkFormSaveReadiness()){
+        return ; // escape saving the form if form is not ready;
+    }
     const result = 
         Array.from(formContainer.querySelectorAll("div.sectionContainer"))
         .filter(

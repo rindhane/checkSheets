@@ -8,12 +8,17 @@
     --blue: #1e90ff;
     --btn-text: #ffffff;
     --btn-color:#0d6efd;
-    --background-color: #f5f5f5;
+    --background-color:*#f5f5f5;
     --client-colour-main:rgb(225, 17, 17);
     --btn-alarm:var(--client-colour-main);
     --btn-change:#50394c;
     --HxGN-Blue :#00abc8;
     --HxGN-gradient: linear-gradient(90deg,#b0d35a 0,#3fab99 49%,#00abc8 100%);
+    --header-big-font:1.4vw;
+    --big-font-max:max(1.2vw, 1.2vh);
+    --medium-Font-max :max(1vw,1vh);
+    --height-row-item: 3rem;
+    --width-input-number:6vw;
 }
 body{
     display: flex;
@@ -67,6 +72,10 @@ main{
     align-items: center;
     width: 50%;
 }
+div.headerRowItem>label{
+    width:30%;
+    font-size: var(--medium-Font-max);
+}
 
 input.headerInput{
     width: 60%;
@@ -76,6 +85,7 @@ input.headerInput{
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    font-size: var(--medium-Font-max);
   }
 footer{
     display: flex;
@@ -169,7 +179,12 @@ footer{
     /*flex-grow:2;*/
 }
 .statusElement{
-    min-height: 60px;
+    display: flex;
+    min-height:var(--height-row-item);
+    height: 100%;
+    margin : 2px; /*to accomodate the golden line spacing in these column*/
+    align-items: center;
+    font-size: var(--medium-Font-max);
 }
 
 
@@ -207,7 +222,7 @@ footer{
 }
 .headerItem {
     height: 5vh;
-    font-size: min(2.2vh,2.2vw);
+    font-size: var(--header-big-font);
 }
 
 .sectionImg {
@@ -412,6 +427,8 @@ border-radius: 50%;
     -webkit-appearance: textfield;
     -moz-appearance: textfield;
     appearance: textfield;
+    max-width:var(--width-input-number);
+    font-size: var(--medium-Font-max);
 }
 .incrementField input[type=number]::-webkit-inner-spin-button,
 .incrementField input[type=number]::-webkit-outer-spin-button {
@@ -420,12 +437,13 @@ border-radius: 50%;
 .incrementField{
     border: 2px solid #ddd;
     display: inline-flex;
+    max-width: 14vw;
   }
 .incrementField,
 .incrementField * {
   box-sizing: border-box;
 }
-.incrementField button{
+div.incrementField>button {
     outline:none;
     -webkit-appearance: none;
     background-color: transparent;
@@ -467,4 +485,19 @@ input[type=text].inputLarge, input[type=email], input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-  }
+}
+div[data-detail-name="station"]{
+    font-size: var(--medium-Font-max);
+}
+.chrClass{
+    max-width: 4vw;
+}
+.btnClickImg{
+    max-width : 4vw;
+}
+
+input.inputField{
+    width: 65%;
+    height: 100%;
+    font-size: var(--medium-Font-max); 
+}

@@ -14,6 +14,19 @@
             <div class="header-title">
                 <div class="titleContent">Admin Page</div> 
             </div>
+            <div class="userLogin">
+                <select name="userLogin" id="userLoginDetail" onchange="logout(event,this);">
+                    <option value="UserName">Admin</option>
+                    <option value="Logout">Logout</option>
+                </select>
+                <script>
+                    function logout(event,elem){
+                        if(elem.value=="Logout"){
+                            window.location.href="/";
+                        }
+                    }
+                </script>
+            </div>
         </header>
         <main>
             <div class="sideBar" id="sideBar">

@@ -1551,6 +1551,11 @@ async function activateCheckSheetOption(event,currentSelectorElem){
 }
 
 async function operatorLoginDetails(event,buttonElem){
+    const {status, error}= isCheckFormInputAvailable(buttonElem);
+    if (!status){
+        window.alert(error);
+        return ;
+    }
     storeInLocalStorage("operatorWWID","temp-operator"); //correctionPending : this should be temproary storage
     const modalElem= buttonElem.parentElement;
     const model = modalElem.querySelector('select[name="modelSelection"]').value;
@@ -1565,6 +1570,32 @@ async function operatorLoginDetails(event,buttonElem){
     storeInLocalStorage('mode','operator');
     renderForm();
     modalContainer.style.display='none';  
+}
+
+function isCheckFormInputAvailable(buttonElem){
+    const parent = buttonElem.parentElement;
+    if (parent.querySelector('select[name="modelSelection"]').value=="0"){
+        return {
+            status:false ,
+            error: "model not provided",
+        };
+    }
+    if (parent.querySelector('select[name="checkSheetSelection"]').value=="0"){
+        return {
+            status:false,
+            error: "checkSheet name not provided",
+        };
+    }
+    if(parent.querySelector('select[name="checkSheetOperationSelection"]').value=="0"){
+        return {
+            status:false,
+            error:"operation was not provided",
+        };
+    }
+    return {
+        status:true,
+        error:"",
+    };
 }
 
 

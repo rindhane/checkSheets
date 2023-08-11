@@ -29,6 +29,10 @@ namespace App.RouteBindings
       return Results.LocalRedirect("~/login",false,true);
     }
 
+    public static IResult MoveForOperator(HttpRequest requet){
+      return Results.LocalRedirect("~/checkSheet",false,true);
+    }
+
     public static async Task userCheckSheets(HttpContext context, HttpRequest request,DbLayer dbConn){
       string bodyString = httpHandlers.getRequestBody(request.Body);
       //await context.Response.WriteAsJsonAsync<List<checkSheet>>(fileHandler.getCheckSheetUserData());

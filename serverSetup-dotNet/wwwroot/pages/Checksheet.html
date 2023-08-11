@@ -16,6 +16,18 @@
         <div class="header-title">
             <div class="titleContent" id="pageTopHeader">Sample CheckList</div> 
         </div>
+        <div class="HomeRedirection">
+            <a href="/admin" id="adminRedirection" style="display: none;">
+                <img class="imgHeader" src="/assets/img/icons/home.png" />
+            </a>
+        </div>
+        <script>
+            const checkAdmin = new URLSearchParams(window.location.search).get("mode");
+            if (checkAdmin=='author'){
+                const adminElem = document.getElementById('adminRedirection');
+                adminElem.style.display="inline";
+            }
+        </script>
     </header>
     <div class="optionsContainer ">
         <div class="optionsMenu hideContainer">

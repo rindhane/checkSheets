@@ -243,5 +243,7 @@ async function reworkInspectionSave(event,buttonElem){
     const sheetID = getLocalOrThenUrl('sid');
     const payload = { ESN:ESN, sheetId: sheetID, reworkUpdates:paramSets};
     const response = await postJsonData("/reworkDataUpdate",payload,);
+    //clear the rework array after saving the inspection
+    ReworkArray.splice(0,ReworkArray.length); //attention:GLOBAL element accessed here
     return response;
 } 

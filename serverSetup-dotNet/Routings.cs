@@ -22,6 +22,7 @@ public static class Routes{
         app.MapPost("/GetCheckSheetData", RouteMethods.getCheckSheetData);
         app.MapPost("/saveAuthorCheckSheet",RouteMethods.saveCheckSheet);
         app.MapPost("/formDataUpdate", RouteMethods.storeFormData);
+        app.MapPost("/reworkDataUpdate", RouteMethods.reworkFormData);
         app.MapPost("/particularFormData",RouteMethods.loadFormData);
         app.MapGet("/operator",RouteMethods.MoveForOperator);
         return app;

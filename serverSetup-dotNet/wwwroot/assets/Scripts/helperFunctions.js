@@ -41,6 +41,41 @@ function htmlToMultiElement(htmlString){
 		template.innerHTML = html;
 		return template.content.children;
 }
+
+async function createOptionElements(selectorElem, optionItemArray, nullDefinition="select Option"){
+    const nullOption = document.createElement('option');
+    nullOption.value=0;
+    nullOption.innerText = nullDefinition;
+    selectorElem.appendChild(nullOption);
+    optionItemArray.forEach((item,index)=>{
+        const option = document.createElement('option');
+        option.value=item;
+        option.innerText=item;
+        selectorElem.appendChild(option);
+    });
+    return selectorElem;
+}
+
+async function createOptionElementsFromPairItems(selectorElem, optionPairItemArray, nullDefinition={text:"select Option",value:0}){
+    const nullOption = document.createElement('option');
+    nullOption.value=nullDefinition.value;
+    nullOption.innerText = nullDefinition.text;
+    selectorElem.appendChild(nullOption);
+    optionPairItemArray.forEach((valueTextPairItem,index)=>{
+        const option = document.createElement('option');
+        option.value=valueTextPairItem.value;
+        option.innerText=valueTextPairItem.text;
+        selectorElem.appendChild(option);
+    });
+    return selectorElem;
+}
+
+function getChildIndexInParentStack(childElement){
+	const parentElemChildrenArray = childElement.parentNode.children;
+    const index = Array.prototype.indexOf.call(parentElemChildrenArray, childElement); //ref : https://stackoverflow.com/questions/5913927/get-child-node-index
+	return index;
+}
+
 //get timestring with localtimezone offset 
 
 function getISOTimeStringWithOffset()

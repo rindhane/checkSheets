@@ -28,6 +28,7 @@ namespace FileHandler {
         public string? sheetID {get;set;}
 
         public List<Checksheet_Values>? formUpdates {get;set; }
+        public List<Checksheet_Rework_Values>? reworkUpdates {get;set; }
     }
 
     public record sectionValues {

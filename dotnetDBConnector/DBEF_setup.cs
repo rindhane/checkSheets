@@ -30,6 +30,8 @@ namespace DbConnectors {
         public DbSet<Checksheet_Field>? Checksheet_Fields{get; set;}
 
         public DbSet<Checksheet_Values>?Checksheet_Values{get;set;}
+
+        public DbSet<Checksheet_Rework_Values>?Checksheet_Rework_Values{get;set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
             //refer : https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro?view=aspnetcore-7.0#create-the-database-context
@@ -37,6 +39,7 @@ namespace DbConnectors {
             modelBuilder.Entity<Checksheet_Station>().ToTable("CHECKSHEET_STATIONS");
             modelBuilder.Entity<Checksheet_Field>().ToTable("CHECKSHEET_FIELDS");
             modelBuilder.Entity<Checksheet_Values>().ToTable("CHECKSHEET_VALUES");
+            modelBuilder.Entity<Checksheet_Rework_Values>().ToTable("CHECKSHEET_REWORK_VALUES");
             
         }
 

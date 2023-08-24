@@ -274,5 +274,33 @@ public class Checksheet_Values  {
     public string? stationID {get;set;}
 }
 
+public class Checksheet_Rework_Values  {
+    
+    
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int UID {get;set;}
+    
+    public Checksheet_Field? field {get; set;}
+
+    [ForeignKey("field")]
+    public System.Guid fieldID{get;set;} 
+
+    public string? fieldValue {get;set;}
+
+    public System.DateTime dateTime {get;set;}
+
+    public string? formSN {get;set;}
+
+    public string? operatorID {get;set;}
+
+    public string? StationName {get; set;}
+
+    public string? reworkReason {get;set;}
+
+    public string? reworkRemarks {get;set;}
+
+}
+
 
 }

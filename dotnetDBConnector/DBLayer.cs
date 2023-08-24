@@ -328,6 +328,13 @@ namespace DbConnectors {
                 .ToListAsync();
         }
 
+        public async Task updateReworkEntry(List<Checksheet_Rework_Values>dataValues){
+            var db = spawnNewContext (); 
+            await db.Checksheet_Rework_Values!.AddRangeAsync(dataValues);
+            await db.SaveChangesAsync();
+            return ;
+        }
+
         public void SaveChangesFailureEvent(object? sender, SaveChangesFailedEventArgs e){
             System.Console.WriteLine(e.Exception.Message);
             System.Console.WriteLine(e.Exception.InnerException!.Message);

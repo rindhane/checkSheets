@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore ;
+using System.Threading.Tasks;
 
 namespace DbConnectors
 {
@@ -165,7 +166,6 @@ namespace DbConnectors
         }; 
             var test = new System.Guid("de9343c4-7465-42ef-a45b-a2d5195f3b19");
             var sqlString = createScriptOfDbModel(opt);
-            
             
             //deleteAllCheckSheet(opt);
             //integrateNewCheckSheet(opt,"testModelFullSheet", "testModelFull","testData", "K19 - QSK19 ASSEMBLY .json");

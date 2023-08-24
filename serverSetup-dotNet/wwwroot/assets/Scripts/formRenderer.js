@@ -208,9 +208,10 @@ function generateDOMattributes(txt){
     };
 }
 
-async function generateSection(itemSection)
+async function generateSection(itemSection, typeSection="normal")
 {
     const selfElem= produceElement("section");
+    selfElem.setAttribute("data-type-section",typeSection);
     const index = parseInt(itemSection["index"]);
     selfElem.setAttribute("data-index", index); 
     selfElem.setAttribute("data-uid", itemSection["uid"]);
@@ -234,7 +235,7 @@ async function generateSection(itemSection)
     )
     //add inspection field Element
     addFieldElementsToSection(selfElem,itemSection["childs"], index);
-    addStatusElement(selfElem,itemSection["childs"]);
+    addStatusElement(selfElem,itemSection["childs"],typeSection);
     //selfElem.appendChild(statusElement());
     if(authMode.active){
         selfElem.appendChild(authorSegment(index));
@@ -308,14 +309,6 @@ function valueContainerDataTagAdd(valueContainer, fieldType){
     assignDataUpdateFunction(valueContainer, fieldType);
     return valueContainer;
 }
-
-async function addStatusElement(elem, childArray){
-    const statusContainer = statusElementContainer(); 
-    for(i=0;i<childArray.length;i++){
-        statusContainer.appendChild(statusElement(i));
-    }
-    elem.appendChild(statusContainer);
-} 
 
 function prepareParameterElement(inspectionContainer, fieldTag){
     inspectionContainer.setAttribute("data-detail-name","operation");
@@ -458,15 +451,38 @@ function authorSegment(index){
     return parentElem;
 }
 
+async function addStatusElement(elem, childArray, type="normal"){
+    const statusContainer = statusElementContainer(); 
+    for(i=0;i<childArray.length;i++){
+        statusContainer.appendChild(statusElement(i,childArray,type));
+    }
+    elem.appendChild(statusContainer);
+} 
+
 function statusElementContainer(){
     let statHtml=
-                `<div class="sectionItem statusSubSection itemMedium"></div>`
+                `<div class="sectionItem statusSubSection itemMedium" data-section-type="status"></div>`
     return htmlToElement(statHtml);
 }
-function statusElement(index){
+function statusElement(index,childArray, type='normal')
+{
     let statHtml=`
-                <div class="statusElement" data-detail-status="null"  data-detail-status-index="${index}"> No Input yet </div>
+                <div class="statusElement" data-detail-status="null" data-detail-status-index="${index}">  <span name="textElem"> No Input yet <span> 
                 </div>`;
+    if(type=='rework')
+    {
+        statHtml=`
+                <div class="statusElement popup" data-detail-status="null"  data-detail-status-index="${index}" data-detail-reworkremarks="${childArray[i].reworkRemarks}"
+                data-detail-reworkreason="${childArray[i].reworkReason}"  
+                onclick="remarkShowToggle(event,this)"> 
+                        <span class="popuptext" data-type-remarks="${childArray[i].reworkRemarks}">
+                        Reason:${childArray[i].reworkReason} -
+                        <br/>
+                        <span>${childArray[i].reworkRemarks}</span></span>
+                        <span name="textElem"> No Input yet </span> 
+                        <img src = "/assets/img/icons/remark_note.svg" alt="remarks"/>
+                </div>`;
+    }
     return htmlToElement(statHtml);
 }
 function sectionDividerElementAuthoring(index, htmlString)
@@ -542,7 +558,7 @@ function saveFormElement(){
     button.classList.add("btn-primary");
     button.style.margin='10px';
     button.innerHTML="Save Inspection";
-    button.setAttribute('onclick',"saveFieldsForm(event, this);");
+    button.setAttribute('onclick',"onSaveButtonPress(event, this);");
     return button;
 }
 
@@ -1122,198 +1138,6 @@ fieldJson={
 }
 */
 
-async function generateReworkSection() {
-    const sectionBase = await reworkSectionConfiguratorBaseTemplate();
-    const fieldset = sectionBase.querySelector('fieldset');
-    populateRework(ReworkArray,fieldset);
-    return sectionBase;
-}
-async function reworkSectionConfiguratorBaseTemplate(){
-    const htmlString= 
-    `
-    <div class="reworkContainer">
-        <fieldset>
-            <legend>Rework Section</legend>
-            <label for="reworkQuestion" onclick="OnCheckRework(event,this);">
-                <span>Want to add details about rework ?</span>
-                <input type="radio" name="reworkOption" value="1" "><label>Yes</label>
-                <input type=radio name="reworkOption" value="0" checked><label>No</label>
-            </label>
-        </fieldset>
-    </div>
-    `;
-    return htmlToElement(htmlString);
-}
-
-
-async function OnCheckRework(event, elem){
-    const element = event.target;
-    const parentElem=element.parentElement;
-    const fieldset=parentElem.parentElement;
-    const childrenCollection = fieldset.children;
-    for (i=childrenCollection.length-1;i>1;i--){ // i>1 for legend & label to be spared from deletion 
-        fieldset.removeChild(childrenCollection[i]);
-    }
-    if (element.value=="1"){
-        fieldset.appendChild(await populateStations());
-    }
-    //
-}
-async function populateStations(){
-    const htmlString=`
-        <div class="reworkBaseIdentifier">
-            <label for="stationSelector">
-                select applicable station's Rework
-            </label>
-            <select name="stationSelector">
-            </select>
-            <br/>
-        </div>
-    `;
-    const result = htmlToElement(htmlString);
-    const selectorElem =result.querySelector('select[name=stationSelector]');
-    const nameArray=MasterArray.map(obj=>obj.descText);
-    createOptionElements(selectorElem, nameArray, nullDefinition='select station');
-    selectorElem.setAttribute('onchange','onSelectStation(event,this);');
-    return result; 
-}
-async function createOptionElements(selectorElem, optionItemArray, nullDefinition="select Option"){
-    const nullOption = document.createElement('option');
-    nullOption.value=0;
-    nullOption.innerText = nullDefinition;
-    selectorElem.appendChild(nullOption);
-    optionItemArray.forEach((item,index)=>{
-        const option = document.createElement('option');
-        option.value=item;
-        option.innerText=item;
-        selectorElem.appendChild(option);
-    });
-    return selectorElem;
-}
-async function onSelectStation(event, elem){
-    const reworkBaseIdentifier = elem.parentElement;
-    const fieldset = reworkBaseIdentifier.parentElement;
-    const childrenCollection=reworkBaseIdentifier.children;
-    for (i=childrenCollection.length-1;i>2;i--){ // i>2 for label selector br element spared from deletion 
-        reworkBaseIdentifier.removeChild(childrenCollection[i]);
-    }
-    if(elem.value!="0"){
-        constructFieldSelector(reworkBaseIdentifier,elem.value);
-    }
-}
-async function constructFieldSelector(parentElem,selectedStation){
-    parentElem.appendChild(
-        htmlToElement(
-            `
-            <label for="stationFieldSelector">
-                select applicable Field in Rework
-            </label>
-            `
-        )
-    );
-    const htmlString=`
-    <select name="stationFieldSelector">
-    </select>
-    `;
-    const result = htmlToElement(htmlString);
-    const filteredArray=MasterArray.filter(section=>section.descText==selectedStation);
-    const selectedStationContent = filteredArray[0];
-    const optionArray = selectedStationContent.childs.map(child=>child.descText);
-    createOptionElements(result,optionArray,"select applicable field");
-    parentElem.appendChild(result);
-    result.setAttribute("onchange","createDOMReworkInput(event, this);")
-    return result;
-}
-
-async function createDOMReworkInput(event, elem){
-    const reworkReasons = [
-        'Part Replacement', 'Torquing Correction', 'Detailed Rework', 'Others' 
-    ];
-    const index=Array.prototype.indexOf.call(elem.parentElement.children, elem);
-    const reworkBaseIdentifier = elem.parentElement;
-    for(i=reworkBaseIdentifier.children.length-1; i>index;i--){
-        reworkBaseIdentifier.removeChild(reworkBaseIdentifier.children[i]);
-    }
-    if (elem.value!="0" && elem.value!=undefined){
-        const htmlString = `
-            <div>   
-                <label> select the rework type</label>
-                <select name="reworkReason" onchange="displayReworkInputs(event,this);"> </select>
-            </div>
-            <div class="hideContainer" id="reworkInputs">
-                <label for="replaceSpec">Provide change in final specification </label>
-                <input type="text" name="replaceSpec" placeholder="Change detail"> <br/>
-                <label for="reworkRemark"> Rework Remarks </label><br/>
-                <textarea  name="reworkRemark" rows="5" cols="25" >Description & Remarks of rework content</textarea>
-            </div>
-            <div class="hideContainer" id="saveButton">
-                <button onclick="pushReworkOnSave(event,this);"> Save Rework Details</button>
-            </div>
-        `;
-        const reworkElemCollection= Array.prototype.slice.call(htmlToMultiElement(htmlString));
-        for(j=0;j<reworkElemCollection.length;j++){
-            reworkBaseIdentifier.insertAdjacentElement("beforeend", reworkElemCollection[j]); 
-        }
-        const selectorElem = reworkBaseIdentifier.querySelector('select[name="reworkReason"]');
-        createOptionElements(selectorElem, reworkReasons, nullDefinition="select Rework Type");
-        return true;
-    }
-    return false;
-}
-
-async function displayReworkInputs(event,elem){
-    const reworkBaseIdentifier= elem.parentElement.parentElement;
-    const reworkInputElem=reworkBaseIdentifier.querySelector('div#reworkInputs');
-    const buttonContainer = reworkBaseIdentifier.querySelector('div#saveButton')
-    if(elem.value!="0"){
-        reworkInputElem.classList.remove("hideContainer");
-        buttonContainer.classList.remove('hideContainer');
-        return true;
-    }
-    reworkInputElem.classList.add('hideContainer');
-    buttonContainer.classList.add('hideContainer');
-    return false;
-}
-
-async function pushReworkOnSave(event,elem){
-    const fieldSet=elem.parentElement.parentElement.parentElement;
-    const inputElem=fieldSet.querySelector('input[type="radio"][name="reworkOption"][value="0"]');
-    const newSpecInput = fieldSet.querySelector('input[name="replaceSpec"][type="text"]').value;
-    const reworkRemarks = fieldSet.querySelector('textarea[name="reworkRemark"]').value;
-    const stationName = fieldSet.querySelector('select[name="stationSelector"]').value;
-    const stationFieldName = fieldSet.querySelector('select[name="stationFieldSelector"]').value;  
-    const sectionArray=MasterArray.filter(section=>section.descText==stationName)
-                                  .filter(section=>{
-                                    const result = section.childs.filter(child=>child.descText==stationFieldName);
-                                    if(result.length>0){
-                                        return true;
-                                    }
-                                    return false;
-                                  }); //get only applicable section with the appropriate child
-    const selectedFieldArray=sectionArray[0].childs.filter(child=>child.descText==stationFieldName); //get only applicable field;
-    const newSection= JSON.parse(JSON.stringify(sectionArray[0]));
-    newSection.childs=JSON.parse(JSON.stringify(selectedFieldArray));
-    newSection.childs[0].reworkRemarks=reworkRemarks;
-    newSection.childs[0].value=newSpecInput;
-    ReworkArray.push(newSection);
-    populateForm(MasterArray,fieldContainerElement,);
-    inputElem.click();
-}
-
-async function populateRework(recordArray, formElem){
-    let resultElem = htmlToElement('<div class="reWorkFieldContainerBox" id="reworkUpdates"></div>');
-    let formHeader= document.getElementById("sectionTableHeaderNone");
-    let sectionDividerContainer = document.getElementById("sectionDividerTemplateContainerNone");
-    resultElem.appendChild(htmlToElement(formHeader.innerHTML));
-    for(let i=0; i<recordArray.length;i++)
-    {
-        resultElem.appendChild(await generateSection(recordArray[i]));
-        resultElem.appendChild(sectionDividerElementAuthoring(i,sectionDividerContainer.innerHTML));
-    }
-    formElem.insertAdjacentElement('afterend',resultElem);
-    return resultElem;
-}
-
 async function authoringModeTemplateGeneratedElement(){
     const htmlString=`
     <div class="authoringCheckContainer">
@@ -1606,7 +1430,6 @@ function checkFormSaveReadiness(){
         if(elem.innerText=="No Input yet"
         || elem.innerText=="No Input")
         {
-            console.log(elem);
             elem.classList.remove('highlightNormal');
             elem.classList.add('highlightError');
             result = false; 
@@ -1617,17 +1440,32 @@ function checkFormSaveReadiness(){
 }
 
 //checkSheet Save functions:
+async function onSaveButtonPress(event,buttonElem)
+{
+    if (!checkFormSaveReadiness()){
+        return ; // escape saving the form if form is not ready;
+    }
+    //let messageBeforeSending = window.confirm("Confirm to save the form");
+    let [response1, response2 ] = await Promise.all([
+        saveFieldsForm(event, buttonElem),
+        reworkInspectionSave(event,buttonElem),
+    ]);
+    console.log("response", response1.status, response2.status);
+    if (response1.status==200 && response2.status==200) {
+        let UIinput= window.confirm("Data Successfully Submitted !");
+        location.reload(true); //https://www.freecodecamp.org/news/javascript-refresh-page-how-to-reload-a-page-in-js/
+        return ;
+    };    
+}
+
 async function saveFieldsForm(event, buttonElem){
     const formContainer = buttonElem.parentElement;
     const ESN = document.getElementById("ESNInput").value;
     const dateTimeBlock = document.getElementById("DateEntry").value;
     const pageTopHeader = document.getElementById('pageTopHeader');
     const paramSets = new Array();
-    if (!checkFormSaveReadiness()){
-        return ; // escape saving the form if form is not ready;
-    }
     const result = 
-        Array.from(formContainer.querySelectorAll("div.sectionContainer"))
+        Array.from(formContainer.querySelectorAll('div.sectionContainer[data-type-section="normal"]'))
         .filter(
                 (sectionContainer)=>sectionContainer.getAttribute('data-index')!=null)
         .forEach((sectionContainer)=>{
@@ -1662,10 +1500,8 @@ async function saveFieldsForm(event, buttonElem){
     //populateHeader();
     */
     //console.log(response);
-    let UIinput= window.confirm("Data Successfully Submitted !");
-    location.reload(true); //https://www.freecodecamp.org/news/javascript-refresh-page-how-to-reload-a-page-in-js/
     
-    return result;
+    return response;
 } 
 
 async function clearField(buttonElem){
@@ -1697,4 +1533,10 @@ async function LogOutUser(event, elem){
         localStorage.clear();
         location.reload();
     }
+}
+
+async function remarkShowToggle(event,elem){
+   // ref: https://www.w3schools.com/howto/howto_js_popup.asp
+    const popup = elem.querySelector("span.popuptext");
+    popup.classList.toggle("show");
 }

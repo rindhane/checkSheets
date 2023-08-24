@@ -4,7 +4,8 @@ DECLARE @qdas_db VARCHAR(100);
 DECLARE @query1 nvarchar(max);
 DECLARE @query2 nvarchar(max);
 DECLARE @query3 nvarchar(max);
-DECLARE @query4 nvarchar(max); 
+DECLARE @query4 nvarchar(max);
+DECLARE @query5 nvarchar(max); 
 
 SET @qdas_db='QDAS_VALUE_DATABASE'; --replace with the data database of qdas
 
@@ -61,6 +62,20 @@ set @query4= 'CREATE TABLE' + QUOTENAME(@qdas_db)+'.dbo.CHECKSHEET_VALUES(
   CONSTRAINT [FK_CHECKSHEET_VALUES_CHECKSHEET_FIELDS_fieldID] FOREIGN KEY ([fieldID]) REFERENCES [CHECKSHEET_FIELDS] ([UID])  
 )'
 EXEC sp_executesql @query4;
+
+set @query5= 'CREATE TABLE' + QUOTENAME(@qdas_db)+'.dbo.CHECKSHEET_REWORK_VALUES(
+  UID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+  fieldID uniqueidentifier NOT NULL,
+  fieldValue nvarchar(max) NULL,
+  dateTime datetime2 NOT NULL,
+  formSN nvarchar(max) NULL,
+  operatorID nvarchar(max) NULL,
+  StationName nvarchar(max) NULL,
+  reworkReason nvarchar(max) NULL,
+  reworkRemarks nvarchar(max) NULL,
+  CONSTRAINT [FK_CHECKSHEET_REWORK_VALUES_CHECKSHEET_FIELDS_fieldID] FOREIGN KEY ([fieldID]) REFERENCES [CHECKSHEET_FIELDS] ([UID])  
+)'
+EXEC sp_executesql @query5;
 GO
 /*
 CREATE INDEX [IX_CHECKSHEET_FIELDS_stationID] ON [QDAS_VALUE_DATABASE].[dbo].[CHECKSHEET_FIELDS]  ([stationID]);

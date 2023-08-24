@@ -1,6 +1,7 @@
 const evaluationReceiver = async function(event, elem){ //event handler for "evaluation" event
     const index = event.detail.selfIndex;
-    const targetElem = elem.querySelector('div.statusSubSection').children[index];
+    //const targetElem = elem.querySelector('div.statusSubSection').children[index]; //not to use css tag instead use data-tag,hence removed 
+    const targetElem = elem.querySelector('div[data-section-type="status"]').children[index];
     let textInput = "not evaluated";
     if(event.detail.evaluationResult=="ok"){
         textInput="O.K."; 
@@ -13,7 +14,8 @@ const evaluationReceiver = async function(event, elem){ //event handler for "eva
         || event.detail.evaluationResult=="null" ) {
             textInput="No Input";
         }
-    targetElem.innerHTML=textInput;
+    const textElem = targetElem.querySelector('span[name="textElem"]');
+    textElem.innerHTML=textInput;
     targetElem.classList.remove('highlightError');
     targetElem.classList.add('highlightNormal');
     return ;

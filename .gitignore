@@ -4,3 +4,6 @@ obj/
 
 #vscode files
 .vscode/
+
+#test files
+dataFromOperation/
